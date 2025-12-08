@@ -1,3 +1,7 @@
+let carStripeCanvas;
+let hornColor;
+let carStripeId;
+
 const modVersion = "0.5.0 - PolyRanked";
 
 const serverUpdateHz = 15;
@@ -15724,7 +15728,10 @@ function sendCarMultiplayerData(data, isPaused) {
             e[e.MusicVolume = 16] = "MusicVolume",
             e[e.CheckpointVolume = 17] = "CheckpointVolume",
             e[e.VibrationEnabled = 18] = "VibrationEnabled",
-            e[e.TouchSteeringSide = 19] = "TouchSteeringSide"
+            e[e.TouchSteeringSide = 19] = "TouchSteeringSide",
+            e[e.MultiplayerSmoothingEnabled = 20] = "MultiplayerSmoothingEnabled",
+            e[e.BackwardsCameraToggle = 21] = "BackwardsCameraToggle",
+            e[e.SpectatorAcceleration = 22] = "SpectatorAcceleration"
         }($o || ($o = {}));
         const el = $o;
         var tl, nl, il, rl, al, sl, ol, ll, cl, hl, dl, ul, pl, fl = function(e, t, n, i, r) {
@@ -30126,7 +30133,7 @@ function sendCarMultiplayerData(data, isPaused) {
         ,
         Rv.maxFrames = 5999999;
         const Lv = Rv;
-        var AudioFunctions, VisualCar3, localAudioManager, Uv, zv, Ov, Fv, Wv, collisionAudioState, hornAudioState, audioPanner, Gv, orbitCamera, orbitCameraBackwards, cockpitCamera, Kv, qv, lastUpdateTimestamp, deltaTimestamp, thisMainCarData, lastUpdatedPosition, determinism, Xv, Zv, Jv, $v, ew, tw, nw, iw, rw, aw, sw, ow, lw, cw, hw, dw, uw, pw, carStripeCanvas, carStripeCanvas, storedCarStripeUvMap, mw, currentCarColors, hornColor, carStripeId, vw, ww, yw, bw, skidAudioSources, xw, kw, Ew, Sw, hornTypesMap, setCustomCarStripeImage, Mw, _w, Tw, Cw, Pw, Iw, updateAudio, Lw, Dw, Nw, updateCollisionAudio, playCollisionAudio, playSkidAudio, playHornAudio, Ow, Fw, Ww, Hw = function(e, t, n, i) {
+        var AudioFunctions, VisualCar3, localAudioManager, Uv, zv, Ov, Fv, Wv, collisionAudioState, hornAudioState, audioPanner, Gv, orbitCamera, orbitCameraBackwards, cockpitCamera, Kv, qv, lastUpdateTimestamp, deltaTimestamp, thisMainCarData, lastUpdatedPosition, determinism, Xv, Zv, Jv, $v, ew, tw, nw, iw, rw, aw, sw, ow, lw, cw, hw, dw, uw, pw, storedCarStripeUvMap, mw, currentCarColors, vw, ww, yw, bw, skidAudioSources, xw, kw, Ew, Sw, hornTypesMap, setCustomCarStripeImage, Mw, _w, Tw, Cw, Pw, Iw, updateAudio, Lw, Dw, Nw, updateCollisionAudio, playCollisionAudio, playSkidAudio, playHornAudio, Ow, Fw, Ww, Hw = function(e, t, n, i) {
             return new (n || (n = Promise))((function(r, a) {
                 function s(e) {
                     try {
@@ -30450,11 +30457,39 @@ function sendCarMultiplayerData(data, isPaused) {
             addFinishCallback(e) {
                 get(this, rw, "f").push(e)
             }
+            getDeterminism() {
+                return get(this, determinism, "f");
+            }
+            setDeterminism(value) {
+                console.log("Determinism", value ? "enabled" : "disabled");
+                set(this, determinism, value, "f");
+            }
             getChassisMatrix() {
                 return null != get(this, hw, "f") ? get(this, hw, "f").matrix : null
             }
             getSpeedKmh() {
                 return get(this, thisMainCarData, "f").speedKmh
+            }
+            getLastUpdatedPosition() {
+                return get(this, lastUpdatedPosition, "f");
+            }
+            setLastUpdateTimestamp(tm) {
+                set(this, lastUpdateTimestamp, tm, "f");
+            }
+            getLastUpdateTimestamp() {
+                return get(this, lastUpdateTimestamp, "f");
+            }
+            setDeltaTimestamp(tm) {
+                set(this, deltaTimestamp, tm, "f");
+            }
+            getDeltaTimestamp() {
+                return get(this, deltaTimestamp, "f");
+            }
+            setLastUpdatedPosition(vec) {
+                return set(this, lastUpdatedPosition, vec, "f");
+            }
+            getRotationalVelocity() {   // use requires modification in sim worker
+                return get(this, thisMainCarData, "f").rotationalVelocity
             }
             start() {
                 var e;
@@ -30631,18 +30666,27 @@ function sendCarMultiplayerData(data, isPaused) {
                 if (null == n)
                     throw new Error("Failed to get context for car texture");
 
-                set(this, carStripeCanvas, n, "f");
+                const i = new Texture(t);
+                return i.flipY = !1,
+                i.anisotropy = e.getMaxAnisotropy(),
+                i.needsUpdate = !0,
+                n.clearRect(0, 0, n.canvas.width, n.canvas.height),
+                n.drawImage(VisualCar3.images.stripe, 0, 0, n.canvas.width, n.canvas.height),
+                i.needsUpdate = !0,
+                i
+                
+                carStripeCanvas = n;
 
                 const carStripeUvMap = new Texture(t);
                 return carStripeUvMap.flipY = !1,
                 carStripeUvMap.anisotropy = e.getMaxAnisotropy(),
                 carStripeUvMap.needsUpdate = !0,
 
-                set(this, hornColor, new Color(0,0,0), "f"),
-                set(this, carStripeId, carWrapId, "f"),
+                hornColor = new Color(0,0,0);
+                carStripeId = carWrapId;
 
-                n.clearRect(0, 0, n.canvas.width, n.canvas.height),
-                n.drawImage(VisualCar3.images.stripe, 0, 0, n.canvas.width, n.canvas.height),
+                carStripeCanvas.clearRect(0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
+                carStripeCanvas.drawImage(VisualCar3.images.stripe, 0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
                 carStripeUvMap.needsUpdate = !0,
                 carStripeUvMap
             }
@@ -30650,13 +30694,13 @@ function sendCarMultiplayerData(data, isPaused) {
                get(this, AudioFunctions, "m", setCustomCarStripeImage).call(this, imagePath);
             }
             setHorn(color) {
-                set(this, hornColor, color, "f");
+                hornColor = color;
             }
             getHorn() {
-                get(this, hornColor, "f");
+                return hornColor;
             }
             getHornId() {
-                let colorVector = (new Vector3).setFromColor(get(this, hornColor, "f"));
+                let colorVector = (new Vector3).setFromColor(hornColor);
                 let minDistance = null;
                 let minId = null;
                 for (const [id, vec] of get(this, hornTypesMap, "f").entries()) {
@@ -30673,10 +30717,10 @@ function sendCarMultiplayerData(data, isPaused) {
             setCarStripeId(e) {
                // console.log("Set car stripe ID:", e);
                 this.setCarStripeImage(carWrapMap.get(e) || "images/wraps/default_stripe.png");
-                set(this, carStripeId, e, "f");
+                carStripeId = e;
             }
             getCarStripeId() {
-                return get(this, carStripeId, "f");
+                return carStripeId;
             }
             setOpacity(e) {
                 for (const t of get(this, cw, "f").children) {
@@ -31048,7 +31092,6 @@ function sendCarMultiplayerData(data, isPaused) {
         iw = new WeakMap,
         rw = new WeakMap,
         determinism = new WeakMap,
-        carStripeCanvas = new WeakMap,
         aw = new WeakMap,
         sw = new WeakMap,
         ow = new WeakMap,
@@ -31058,6 +31101,7 @@ function sendCarMultiplayerData(data, isPaused) {
         dw = new WeakMap,
         uw = new WeakMap,
         pw = new WeakMap,
+        carStripeCanvas = new WeakMap,
         storedCarStripeUvMap = new WeakMap,
         mw = new WeakMap,
         currentCarColors = new WeakMap,
@@ -31093,8 +31137,8 @@ function sendCarMultiplayerData(data, isPaused) {
             if (wrapImageCache.has(imagePath)) {
                 const stripeImage = wrapImageCache.get(imagePath);
                 
-                get(this, carStripeCanvas, "f").clearRect(0, 0, get(this, carStripeCanvas, "f").canvas.width, get(this, carStripeCanvas, "f").canvas.height),
-                get(this, carStripeCanvas, "f").drawImage(stripeImage, 0, 0, get(this, carStripeCanvas, "f").canvas.width, get(this, carStripeCanvas, "f").canvas.height),
+                carStripeCanvas.clearRect(0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
+                carStripeCanvas.drawImage(stripeImage, 0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
                 get(this, storedCarStripeUvMap, "f").needsUpdate = !0;
             } else {
                 const stripeImage = new Image;
@@ -31102,8 +31146,8 @@ function sendCarMultiplayerData(data, isPaused) {
                 stripeImage.addEventListener("load", ( () => {
                     wrapImageCache.set(imagePath, stripeImage);
 
-                    get(this, carStripeCanvas, "f").clearRect(0, 0, get(this, carStripeCanvas, "f").canvas.width, get(this, carStripeCanvas, "f").canvas.height),
-                    get(this, carStripeCanvas, "f").drawImage(stripeImage, 0, 0, get(this, carStripeCanvas, "f").canvas.width, get(this, carStripeCanvas, "f").canvas.height),
+                    carStripeCanvas.clearRect(0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
+                    carStripeCanvas.drawImage(stripeImage, 0, 0, carStripeCanvas.canvas.width, carStripeCanvas.canvas.height),
                     get(this, storedCarStripeUvMap, "f").needsUpdate = !0
                 }));
             }
@@ -31129,7 +31173,7 @@ function sendCarMultiplayerData(data, isPaused) {
             let i = Math.min(Math.max(get(this, zv, "f") * n, 0), 1);
             if (Number.isNaN(i) && (i = 0),
             i > 0 && null != get(this, localAudioManager, "f")) {
-                const e = get(this, localAudioMaupdateAudionager, "f").getBuffer("checkpoint");
+                const e = get(this, localAudioManager, "f").getBuffer("checkpoint");
                 if (null != e && null != get(this, localAudioManager, "f").context && null != get(this, localAudioManager, "f").destinationMaster) {
                     const t = get(this, localAudioManager, "f").context.createBufferSource();
                     t.buffer = e,
@@ -32361,7 +32405,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 /^[0-9A-F]{6}$/i.test(e) && (e = "#" + e),
                 colorPicker.color = new Color(e),
                 get(this, carObject, "f").setColors(get(this, Yy, "m", getSelectedCarColors).call(this)),
-                get(this, carObject, "f").setHorn(get(this, ky, "m", getSelectedHorn).call(this));
+                get(this, carObject, "f").setHorn(get(this, Yy, "m", getSelectedHorn).call(this));
                 if (callback !== null) {
                     callback();
                 };
@@ -32376,7 +32420,7 @@ function sendCarMultiplayerData(data, isPaused) {
             const colorPicker = new ColorPicker(t,(e => {
                 document.activeElement != i && (i.value = "#" + e.getHexString()),
                 get(this, carObject, "f").setColors(get(this, Yy, "m", getSelectedCarColors).call(this)),
-                get(this, carObject, "f").setHorn(get(this, ky, "m", getSelectedHorn).call(this));
+                get(this, carObject, "f").setHorn(get(this, Yy, "m", getSelectedHorn).call(this));
                 if (callback !== null) {
                     callback();
                 };
@@ -32395,14 +32439,6 @@ function sendCarMultiplayerData(data, isPaused) {
             get(this, carColorPickerArray, "f")[3].color = e.rims.clone()
         }
         ,
-        getSelectedCarColors = function() {
-            return new CarColors2(
-                get(this, carColorPickerArray, "f")[0].color.clone(),
-                get(this, carColorPickerArray, "f")[1].color.clone(),
-                get(this, carColorPickerArray, "f")[2].color.clone(),
-                get(this, carColorPickerArray, "f")[3].color.clone()
-            )
-        },
         testHonk = function(audioCtx) {
             let hornId = get(this, carObject, "f").getHornId();
             audioCtx.playTestHorn(hornId);
@@ -32623,8 +32659,14 @@ function sendCarMultiplayerData(data, isPaused) {
                 get(this, Yy, "m", createCarColorPicker).call(this, t.get("Rims")),
                 get(this, nb, "f").appendChild(get(this, sb, "f"));
                 const f = get(this, eb, "f").getCurrentUserProfile().carColors;
-                get(this, Yy, "m", gb).call(this, f),
+                get(this, Yy, "m", setColorPickerColors).call(this, f);
+                const hornCol = get(this, eb, "f").getCurrentUserProfile().hornColor;
+                get(this, Yy, "m", setSelectedHorn).call(this, hornCol);
+                const wrapId = get(this, eb, "f").getCurrentUserProfile().carStripeId;
+                get(this, Yy, "m", setSelectedHorn).call(this, hornCol);
                 get(this, carObject, "f").setColors(f),
+                get(this, carObject, "f").setHorn(hornCol),
+                get(this, carObject, "f").setCarStripeId(wrapId),
                 set(this, updatedCarCustomization, !1, "f");
 
                 const battlePass = document.createElement("div");
@@ -34448,7 +34490,7 @@ function sendCarMultiplayerData(data, isPaused) {
                     if (startIdList.includes(r)) {
                         if (null == s.startOrder)
                             throw new Error("Start has no start order");
-                            e.push(255 & s.startOrder, s.startOrder >>> 8 & 255, s.startOrder >>> 16 & 255, (get(this, yb, "f").heightRepresentation + 1) & 255)
+                            e.push(255 & s.startOrder, s.startOrder >>> 8 & 255, s.startOrder >>> 16 & 255, (get(this, ax, "f").heightRepresentation + 1) & 255)
                     }
                 }
             }
@@ -39850,11 +39892,11 @@ function sendCarMultiplayerData(data, isPaused) {
           , LT = null
           , DT = null
           , NT = null;
-        function generateCarPreviewImage(e, t) {
+        function generateCarPreviewImage(e, wrapId, t, plurPx=0) {
             return PT(this, void 0, void 0, (function*() {
                 for (; null != NT; )
                     yield NT;
-                const n = function(e, t) {
+                const n = function(e, wrapId, t, blurPx) {
                     return new Promise((n => {
                         const i = setTimeout(( () => {
                             null != IT && null != RT && null != LT && null != DT || (RT = document.createElement("canvas"),
@@ -39875,8 +39917,28 @@ function sendCarMultiplayerData(data, isPaused) {
                             },null,null,LT,null,null,null,null),
                             IT.update(0)),
                             IT.setColors(e),
-                            LT.update(new SunDirection),
-                            n(RT.toDataURL())
+                            IT.setCarStripeId(wrapId);
+                            LT.update(new SunDirection);
+                            
+                            if (blurPx > 0) {
+                                const tmp = document.createElement('canvas');
+                                tmp.width = RT.width;
+                                tmp.height = RT.height;
+                                const ctx2d = tmp.getContext('2d');
+
+                                if (!("filter" in ctx2d)) {
+                                    n("");
+                                    return;
+                                }
+
+                                ctx2d.filter = 'blur(' + blurPx + 'px)';
+                                ctx2d.filter += ' grayscale(100%)';
+                                ctx2d.drawImage(RT, 0, 0);
+
+                                n(tmp.toDataURL());
+                            } else {
+                                n(RT.toDataURL());
+                            }
                         }
                         ), 25);
                         t.addCancelCallback(( () => {
@@ -41380,7 +41442,7 @@ function sendCarMultiplayerData(data, isPaused) {
         new WeakMap,
         new WeakMap,
         new WeakMap;
-        var carFunctions, carSimulationManager, mI, environmentManager, mountainGenerator, wI, yI, sceneObject, audioContext, xI, settingsManager, EI, SI, MI, _I, TI, CI, PI, II, RI, LI, DI, NI, BI, UI, mainTimerObject, OI, FI, pauseScreen, HI, VI, GI, jI, controlCar, KI, primaryCar, replayGhostCars, XI, ZI, JI, $I, eR, cockpitCameraKeyUpListener, carCameraObject, iR, rR, aR, sR, oR, lR, cR, hR, resetMainCar, setupPrimaryCar, setupDrivingGhostCars, initMultiplayerCars, multiplayerCarMap, fR, mR, gR, set = function(e, t, n, i, r) {
+        var carFunctions, carSimulationManager, mI, environmentManager, mountainGenerator, wI, yI, sceneObject, audioContext, xI, settingsManager, EI, SI, MI, _I, TI, CI, PI, II, RI, LI, DI, NI, BI, UI, mainTimerObject, OI, FI, pauseScreen, HI, VI, GI, jI, controlCar, KI, primaryCar, replayGhostCars, XI, ZI, JI, $I, eR, cockpitCameraKeyUpListener, backwardsCameraKeyUpListener, carCameraObject, iR, rR, aR, sR, oR, lR, cR, hR, resetMainCar, setupPrimaryCar, setupDrivingGhostCars, initMultiplayerCars, multiplayerCarMap, fR, mR, gR, set = function(e, t, n, i, r) {
             if ("m" === i)
                 throw new TypeError("Private method is not writable");
             if ("a" === i && !r)
@@ -41431,6 +41493,7 @@ function sendCarMultiplayerData(data, isPaused) {
         controlCar = new WeakMap,
         KI = new WeakMap,
         primaryCar = new WeakMap,
+        multiplayerCarMap = new WeakMap,
         replayGhostCars = new WeakMap,
         XI = new WeakMap,
         ZI = new WeakMap,
@@ -41438,6 +41501,7 @@ function sendCarMultiplayerData(data, isPaused) {
         $I = new WeakMap,
         eR = new WeakMap,
         cockpitCameraKeyUpListener = new WeakMap,
+        backwardsCameraKeyUpListener = new WeakMap,
         carCameraObject = new WeakMap,
         iR = new WeakMap,
         rR = new WeakMap,
@@ -41891,6 +41955,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 controlCar.set(this, void 0),
                 KI.set(this, null),
                 primaryCar.set(this, null),
+                multiplayerCarMap.set(this, new Map()),
                 replayGhostCars.set(this, []),
                 XI.set(this, void 0),
                 ZI.set(this, []),
@@ -41898,6 +41963,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 $I.set(this, void 0),
                 eR.set(this, void 0),
                 cockpitCameraKeyUpListener.set(this, void 0),
+                backwardsCameraKeyUpListener.set(this, void 0),
                 carCameraObject.set(this, void 0),
                 iR.set(this, null),
                 rR.set(this, null),
@@ -42012,8 +42078,8 @@ function sendCarMultiplayerData(data, isPaused) {
                 const thisTrackId = get(this, environmentManager, "f").getID();
 
                 if (multiplayerEnabled) {
-                    window.multiplayerClient.username = get(this, TC, "f").getCurrentUserProfile().nickname;
-                    // get(this, TC, "f").getCurrentUserProfile().carColors
+                    window.multiplayerClient.username = get(this, xI, "f").getCurrentUserProfile().nickname;
+                    // get(this, xI, "f").getCurrentUserProfile().carColors
 
                     if (!window.multiplayerClient.spectating) {
                         if (window.multiplayerClient.inRankedMatch) {
@@ -42057,14 +42123,14 @@ function sendCarMultiplayerData(data, isPaused) {
                             e.repeat || null == get(this, pauseScreen, "f") && (null === (t = get(this, primaryCar, "f")) || void 0 === t ? void 0 : t.hasStarted()) && (get(this, carFunctions, "m", lR).call(this) ? get(this, controlCar, "f").reset = !0 : (get(this, carFunctions, "m", resetMainCar).call(this),
                             get(this, controlCar, "f").reset = !1)),
                             e.preventDefault();
-                        else if (get(this, settingsManager, "f").checkKeyBinding(e, Ix.VehicleHonkHorn)) {
+                        else if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleHonkHorn)) {
                             if (window.multiplayerClient.spectating) {return;}
                             let hornId = get(this, primaryCar, "f").getHornId();
                             get(this, primaryCar, "f").playHornSound(hornId),
                             window.multiplayerClient.honkHorn(hornId),
                             e.preventDefault();
                         }
-                        else if (get(this, settingsManager, "f").checkKeyBinding(e, Ix.VehicleSpecial)) {
+                        else if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleSpecial)) {
                             let carPos = get(this, primaryCar, "f").getPosition();
                             let amplification = get(this, primaryCar, "f").getSpeedKmh();
                             let bombLocation = {x:carPos.x, y:carPos.y, z:carPos.z};
@@ -42077,7 +42143,7 @@ function sendCarMultiplayerData(data, isPaused) {
                         else if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleCockpitCamera))
                             e.repeat || get(this, carFunctions, "m", cR).call(this),
                             e.preventDefault();
-                        else if (get(this, settingsManager, "f").checkKeyBinding(e, Ix.VehicleBackwardsCamera)) {   // camera while driving
+                        else if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleBackwardsCamera)) {   // camera while driving
                             if (!e.repeat) {
                                 if (null == get(this, pauseScreen, "f") && !(null == get(this, primaryCar, "f") || get(this, primaryCar, "f").hasFinished())) {
                                     var carToFollow;
@@ -42088,14 +42154,14 @@ function sendCarMultiplayerData(data, isPaused) {
                                         carToFollow = get(this, primaryCar, "f");
                                     }
                                     
-                                    if (get(this, settingsManager, "f").getSettingBoolean($o.BackwardsCameraToggle)) {
+                                    if (get(this, settingsManager, "f").getSettingBoolean(el.BackwardsCameraToggle)) {
                                         if (get(this, sceneObject, "f").camera != carToFollow.cameraOrbitBackwards) {
                                             get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbitBackwards)
                                         } else {
                                             get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbit)
                                         }
                                     } else {
-                                        if (get(this, settingsManager, "f").getSettingBoolean($o.DefaultCameraMode)) {
+                                        if (get(this, settingsManager, "f").getSettingBoolean(el.DefaultCameraMode)) {
                                             get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbit)
                                         } else {
                                             get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbitBackwards)
@@ -42150,14 +42216,9 @@ function sendCarMultiplayerData(data, isPaused) {
                 }
                 ), "f")),
                 window.addEventListener("keyup", set(this, cockpitCameraKeyUpListener, (e => {
-                    get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleCockpitCamera) && get(this, carFunctions, "m", hR).call(this)
-                }
-                ), "f"));
-
-                window.addEventListener("keyup", set(this, backwardsCameraKeyUpListener, (e => {
                     if (!get(this, carCameraObject, "f").isEnabled) {
-                        if (get(this, settingsManager, "f").checkKeyBinding(e, Ix.VehicleBackwardsCamera)) {
-                            if (!(null == get(this, primaryCar, "f") || get(this, primaryCar, "f").hasFinished() || get(this, settingsManager, "f").getSettingBoolean($o.BackwardsCameraToggle))) {
+                        if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleCockpitCamera)) {
+                            if (!(null == get(this, primaryCar, "f") || get(this, primaryCar, "f").hasFinished() || get(this, settingsManager, "f").getSettingBoolean(el.CockpitCameraToggle))) {
                                 var carToFollow;
                                 if (window.multiplayerClient.spectating) {
                                     const multiplayerCars = get(this, multiplayerCarMap, "f").values();
@@ -42165,7 +42226,29 @@ function sendCarMultiplayerData(data, isPaused) {
                                 } else {
                                     carToFollow = get(this, primaryCar, "f");
                                 }
-                                if (get(this, settingsManager, "f").getSettingBoolean($o.DefaultCameraMode)) {
+                                if (get(this, settingsManager, "f").getSettingBoolean(el.DefaultCameraMode)) {
+                                    get(this, sceneObject, "f").setCamera(carToFollow.cameraCockpit)
+                                } else {
+                                    get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbit)
+                                }
+                            }
+                        }
+                    }
+                }
+                ), "f"));
+
+                window.addEventListener("keyup", set(this, backwardsCameraKeyUpListener, (e => {
+                    if (!get(this, carCameraObject, "f").isEnabled) {
+                        if (get(this, settingsManager, "f").checkKeyBinding(e, gk.VehicleBackwardsCamera)) {
+                            if (!(null == get(this, primaryCar, "f") || get(this, primaryCar, "f").hasFinished() || get(this, settingsManager, "f").getSettingBoolean(el.BackwardsCameraToggle))) {
+                                var carToFollow;
+                                if (window.multiplayerClient.spectating) {
+                                    const multiplayerCars = get(this, multiplayerCarMap, "f").values();
+                                    carToFollow = multiplayerCars.next().value;
+                                } else {
+                                    carToFollow = get(this, primaryCar, "f");
+                                }
+                                if (get(this, settingsManager, "f").getSettingBoolean(el.DefaultCameraMode)) {
                                     get(this, sceneObject, "f").setCamera(carToFollow.cameraCockpit)
                                 } else {
                                     get(this, sceneObject, "f").setCamera(carToFollow.cameraOrbit)
@@ -42312,7 +42395,7 @@ function sendCarMultiplayerData(data, isPaused) {
                     } else {
                         car.setOpacity(carOpacity);
                     };
-                    if (get(this, settingsManager, "f").getSettingBoolean($o.MultiplayerSmoothingEnabled) && !carPaused) {
+                    if (get(this, settingsManager, "f").getSettingBoolean(el.MultiplayerSmoothingEnabled) && !carPaused) {
 
                         car.interpolateMovement(deltaTime);
                     };
@@ -42686,7 +42769,7 @@ function sendCarMultiplayerData(data, isPaused) {
         ZR.insertStyleElement = h();
         gfagajklgiolajg()(XR.A, ZR);
         XR.A && XR.A.locals && XR.A.locals;
-        var JR, $R, eL, tL, nL, iL, rL, aL, sL, oL, lL, cL, hL, dL, uL, pL, fL, mL, gL, createSetting, wL, yL, bL = function(e, t, n, i, r) {
+        var JR, $R, eL, tL, nL, iL, rL, dialogueBoxMap, sL, settingsMenuDiv, lL, cL, hL, dL, uL, pL, fL, mL, gL, createSetting, wL, yL, set = function(e, t, n, i, r) {
             if ("m" === i)
                 throw new TypeError("Private method is not writable");
             if ("a" === i && !r)
@@ -42708,9 +42791,9 @@ function sendCarMultiplayerData(data, isPaused) {
         nL = new WeakMap,
         iL = new WeakMap,
         rL = new WeakMap,
-        aL = new WeakMap,
+        dialogueBoxMap = new WeakMap,
         sL = new WeakMap,
-        oL = new WeakMap,
+        settingsMenuDiv = new WeakMap,
         lL = new WeakMap,
         cL = new WeakMap,
         hL = new WeakMap,
@@ -42725,7 +42808,7 @@ function sendCarMultiplayerData(data, isPaused) {
         }
         ,
         fL = function() {
-            get(this, oL, "f").innerHTML = "",
+            get(this, settingsMenuDiv, "f").innerHTML = "",
             get(this, JR, "m", mL).call(this, get(this, eL, "f").get("Language")),
             get(this, JR, "m", createSetting).call(this, null, [{
                 title: "العربية",
@@ -42825,7 +42908,7 @@ function sendCarMultiplayerData(data, isPaused) {
             }, {
                 title: get(this, eL, "f").get("Toggle"),
                 value: "true"
-            }], $o.BackwardsCameraToggle),
+            }], el.BackwardsCameraToggle),
             get(this, JR, "m", createSetting).call(this, get(this, eL, "f").get("Checkpoints"), [{
                 title: get(this, eL, "f").get("Off"),
                 value: "off"
@@ -42992,13 +43075,13 @@ function sendCarMultiplayerData(data, isPaused) {
         mL = function(e) {
             const t = document.createElement("h2");
             t.textContent = e,
-            get(this, oL, "f").appendChild(t)
+            get(this, settingsMenuDiv, "f").appendChild(t)
         }
         ,
         gL = function(e) {
             const t = document.createElement("h3");
             t.textContent = e,
-            get(this, oL, "f").appendChild(t)
+            get(this, settingsMenuDiv, "f").appendChild(t)
         }
         ,
         createSetting = function(e, t, n, i) {
@@ -43034,7 +43117,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 o.appendChild(t),
                 l.push(t)
             }
-            get(this, oL, "f").appendChild(s)
+            get(this, settingsMenuDiv, "f").appendChild(s)
         }
         ,
         wL = function(e, t, n=0, i=1) {
@@ -43058,7 +43141,7 @@ function sendCarMultiplayerData(data, isPaused) {
             }
             )),
             s.appendChild(l),
-            get(this, oL, "f").appendChild(s)
+            get(this, settingsMenuDiv, "f").appendChild(s)
         }
         ,
         yL = function(e, t) {
@@ -43079,7 +43162,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 get(this, tL, "f").playUIClick(),
                 get(this, JR, "m", uL).call(this);
                 const e = t => {
-                    "Escape" == t.code || "Tab" == t.code || "Enter" == t.code && null != document.activeElement && document.activeElement != document.body || (get(this, aL, "f").hide(),
+                    "Escape" == t.code || "Tab" == t.code || "Enter" == t.code && null != document.activeElement && document.activeElement != document.body || (get(this, dialogueBoxMap, "f").hide(),
                     l[0] = t.code,
                     c.textContent = K_(t.code),
                     get(this, JR, "m", pL).call(this),
@@ -43088,7 +43171,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 }
                 ;
                 window.addEventListener("keydown", e),
-                get(this, aL, "f").showConfirm(get(this, eL, "f").get("Press any key...\n\nPress [Escape] to cancel."), get(this, eL, "f").get("Cancel"), get(this, eL, "f").get("Clear"), ( () => {
+                get(this, dialogueBoxMap, "f").showConfirm(get(this, eL, "f").get("Press any key...\n\nPress [Escape] to cancel."), get(this, eL, "f").get("Cancel"), get(this, eL, "f").get("Clear"), ( () => {
                     get(this, JR, "m", pL).call(this),
                     window.removeEventListener("keydown", e)
                 }
@@ -43109,7 +43192,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 get(this, tL, "f").playUIClick(),
                 get(this, JR, "m", uL).call(this);
                 const e = t => {
-                    "Escape" == t.code || "Tab" == t.code || "Enter" == t.code && null != document.activeElement && document.activeElement != document.body || (get(this, aL, "f").hide(),
+                    "Escape" == t.code || "Tab" == t.code || "Enter" == t.code && null != document.activeElement && document.activeElement != document.body || (get(this, dialogueBoxMap, "f").hide(),
                     l[1] = t.code,
                     h.textContent = K_(t.code),
                     get(this, JR, "m", pL).call(this),
@@ -43118,7 +43201,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 }
                 ;
                 window.addEventListener("keydown", e),
-                get(this, aL, "f").showConfirm(get(this, eL, "f").get("Press any key...\n\nPress [Escape] to cancel."), get(this, eL, "f").get("Cancel"), get(this, eL, "f").get("Clear"), ( () => {
+                get(this, dialogueBoxMap, "f").showConfirm(get(this, eL, "f").get("Press any key...\n\nPress [Escape] to cancel."), get(this, eL, "f").get("Cancel"), get(this, eL, "f").get("Clear"), ( () => {
                     get(this, JR, "m", pL).call(this),
                     window.removeEventListener("keydown", e)
                 }
@@ -43132,10 +43215,10 @@ function sendCarMultiplayerData(data, isPaused) {
             }
             )),
             o.appendChild(h),
-            get(this, oL, "f").appendChild(a)
+            get(this, settingsMenuDiv, "f").appendChild(a)
         }
         ;
-        const xL = class {
+        const SettingsMenu = class {
             constructor(e, t, n, i, r, a, s, o) {
                 JR.add(this),
                 $R.set(this, void 0),
@@ -43144,30 +43227,30 @@ function sendCarMultiplayerData(data, isPaused) {
                 nL.set(this, void 0),
                 iL.set(this, void 0),
                 rL.set(this, void 0),
-                aL.set(this, void 0),
+                dialogueBoxMap.set(this, void 0),
                 sL.set(this, void 0),
-                oL.set(this, void 0),
+                settingsMenuDiv.set(this, void 0),
                 lL.set(this, void 0),
                 cL.set(this, new Map),
                 hL.set(this, new Map),
                 dL.set(this, new Map),
-                bL(this, $R, e, "f"),
-                bL(this, eL, t, "f"),
-                bL(this, tL, n, "f"),
-                bL(this, nL, i, "f"),
-                bL(this, iL, r, "f"),
-                bL(this, rL, a, "f"),
-                bL(this, aL, s, "f"),
-                bL(this, sL, document.createElement("div"), "f"),
+                set(this, $R, e, "f"),
+                set(this, eL, t, "f"),
+                set(this, tL, n, "f"),
+                set(this, nL, i, "f"),
+                set(this, iL, r, "f"),
+                set(this, rL, a, "f"),
+                set(this, dialogueBoxMap, s, "f"),
+                set(this, sL, document.createElement("div"), "f"),
                 get(this, sL, "f").className = "settings-menu",
                 e.appendChild(get(this, sL, "f"));
                 const l = document.createElement("h2");
                 l.textContent = t.get("Settings"),
                 get(this, sL, "f").appendChild(l),
-                bL(this, oL, document.createElement("div"), "f"),
-                get(this, oL, "f").className = "container",
-                get(this, sL, "f").appendChild(get(this, oL, "f")),
-                bL(this, cL, new Map(r.getSettings()), "f"),
+                set(this, settingsMenuDiv, document.createElement("div"), "f"),
+                get(this, settingsMenuDiv, "f").className = "container",
+                get(this, sL, "f").appendChild(get(this, settingsMenuDiv, "f")),
+                set(this, cL, new Map(r.getSettings()), "f"),
                 get(this, JR, "m", fL).call(this);
                 const c = document.createElement("div");
                 c.className = "button-wrapper",
@@ -43190,9 +43273,9 @@ function sendCarMultiplayerData(data, isPaused) {
                 d.append(document.createTextNode(t.get("Reset"))),
                 d.addEventListener("click", ( () => {
                     n.playUIClick(),
-                    bL(this, hL, get(this, iL, "f").defaultSettings(), "f"),
+                    set(this, hL, get(this, iL, "f").defaultSettings(), "f"),
                     r.updateSettings(Array.from(get(this, hL, "f"))),
-                    bL(this, dL, get(this, iL, "f").defaultKeyBindings(), "f"),
+                    set(this, dL, get(this, iL, "f").defaultKeyBindings(), "f"),
                     a.generateMeshes(),
                     get(this, JR, "m", fL).call(this)
                 }
@@ -43213,7 +43296,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 }
                 )),
                 c.appendChild(u),
-                window.addEventListener("keydown", bL(this, lL, (e => {
+                window.addEventListener("keydown", set(this, lL, (e => {
                     "Escape" == e.code && (o(),
                     e.preventDefault())
                 }
@@ -43225,6 +43308,206 @@ function sendCarMultiplayerData(data, isPaused) {
             }
         }
         ;
+        const RankedMenu = class {      // cwcinc - ranked menu
+            constructor(e, t, n, i, r, dialogueBox, exitMenu) {
+                JR.add(this),
+                $R.set(this, void 0),
+                eL.set(this, void 0),
+                tL.set(this, void 0),
+                nL.set(this, void 0),
+                iL.set(this, void 0),
+                rL.set(this, void 0),
+                dialogueBoxMap.set(this, void 0),
+                sL.set(this, void 0),
+                settingsMenuDiv.set(this, void 0),
+                lL.set(this, void 0),
+                cL.set(this, new Map),
+                hL.set(this, new Map),
+                dL.set(this, new Map),
+                set(this, $R, e, "f"),
+                set(this, eL, t, "f"),
+                set(this, tL, n, "f"),
+                set(this, nL, i, "f"),
+                set(this, iL, r, "f"),
+                set(this, rL, a, "f"),
+                set(this, dialogueBoxMap, s, "f"),
+                set(this, sL, document.createElement("div"), "f"),
+                get(this, sL, "f").className = "settings-menu ranked-menu",
+                e.appendChild(get(this, sL, "f"));
+                const o = document.createElement("h2");
+                o.textContent = "PolyTrack Ranked",
+                get(this, sL, "f").appendChild(o),
+                set(this, settingsMenuDiv, document.createElement("div"), "f"),
+                get(this, settingsMenuDiv, "f").className = "container",
+                get(this, sL, "f").appendChild(get(this, settingsMenuDiv, "f"));
+                // set(this, hI, new Map(i.getSettings()), "f");
+
+                // get(this, eI, "m", generateSettingsOptions).call(this);
+
+                // player info section
+                const playerInfoHeader = document.createElement("h2");
+                playerInfoHeader.textContent = "Live Users",
+                get(this, settingsMenuDiv, "f").appendChild(playerInfoHeader)
+
+                const playerInfoDiv = document.createElement("div");
+                playerInfoDiv.className = "setting";
+
+                const onlinePlayerText = document.createElement("p");
+                onlinePlayerText.textContent = "Loading players...";
+                playerInfoDiv.appendChild(onlinePlayerText);
+
+                const queuingPlayerText = document.createElement("p");
+                queuingPlayerText.textContent = "";
+                playerInfoDiv.appendChild(queuingPlayerText);
+                
+                const racingPlayerText = document.createElement("p");
+                racingPlayerText.textContent = "";
+                playerInfoDiv.appendChild(racingPlayerText);
+
+                window.multiplayerClient.playersOnlineElements = {
+                    onlinePlayerText,
+                    queuingPlayerText,
+                    racingPlayerText
+                };
+
+                get(this, settingsMenuDiv, "f").appendChild(playerInfoDiv);
+
+                // ranked 1v1 section
+
+                const ranked1v1Div = document.createElement("div");
+                ranked1v1Div.className = "setting";
+                    
+                const ranked1v1Header = document.createElement("h2");
+                ranked1v1Header.textContent = "Ranked 1v1",
+                get(this, settingsMenuDiv, "f").appendChild(ranked1v1Header);
+
+
+                const eloValueText = document.createElement("p");
+                eloValueText.textContent = "Loading ranking...";
+                ranked1v1Div.appendChild(eloValueText);
+
+                window.multiplayerClient.eloTextElement = eloValueText;
+
+                const winLossText = document.createElement("p");
+                winLossText.textContent = "";
+                ranked1v1Div.appendChild(winLossText);
+
+                window.multiplayerClient.winLossTextElement = winLossText;
+
+                const queueLengthText = document.createElement("p");
+                queueLengthText.textContent = "";
+                ranked1v1Div.appendChild(queueLengthText);
+
+                window.multiplayerClient.timeSpentInQueueText = queueLengthText;
+
+                get(this, settingsMenuDiv, "f").appendChild(ranked1v1Div);
+
+                
+                const eloLeaderboardHeader = document.createElement("h2");
+                eloLeaderboardHeader.textContent = "Leaderboard",
+                get(this, settingsMenuDiv, "f").appendChild(eloLeaderboardHeader);
+
+                const currentMatchesDiv = document.createElement("div");
+                currentMatchesDiv.className = "setting elo-leaderboard-div";
+
+                const comingSoon = document.createElement("p");
+                comingSoon.textContent = "Loading...";
+                currentMatchesDiv.appendChild(comingSoon);
+
+                const eloLeaderboardDiv = document.createElement("div");
+                eloLeaderboardDiv.className = "setting elo-leaderboard-div";
+                
+                get(this, settingsMenuDiv, "f").appendChild(currentMatchesDiv);
+                get(this, settingsMenuDiv, "f").appendChild(eloLeaderboardDiv);
+                
+                window.multiplayerClient.currentMatchesDiv = currentMatchesDiv;
+                window.multiplayerClient.eloLeaderboard = eloLeaderboardDiv;
+
+
+                window.multiplayerClient.updatePlayerData();
+                window.multiplayerClient.getOnlinePlayerCount();
+                window.multiplayerClient.getEloLeaderboard();
+                window.multiplayerClient.getCurrentMatches();
+
+                const queueButtonWrapper = document.createElement("div");
+                queueButtonWrapper.className = "button-wrapper";
+
+                const queueButton = document.createElement("button");
+                queueButton.className = "button",
+                queueButton.textContent = "Queue 1v1",
+                queueButton.addEventListener("click", ( () => {
+                    n.playUIClick();
+                    if (queueButton.textContent == "Leave Queue") {
+                        queueButton.classList.add("disabled");
+                        window.multiplayerClient.leaveQueue();
+                    } else {
+                        // console.log("Queueing");
+                        queueButton.classList.add("disabled");
+                        window.multiplayerClient.joinQueue();
+                    }
+                }));
+
+                const joinedQueueCallback = () => {
+                    queueButton.classList.remove("disabled");
+                    queueButton.textContent = "Leave Queue";
+                    queueButton.classList.add("leaveQueueButton");
+                };
+
+                const leftQueueCallback = () => {
+                    queueButton.classList.remove("disabled");
+                    queueButton.textContent = "Queue 1v1";
+                    queueButton.classList.remove("leaveQueueButton");
+                };
+
+                window.multiplayerClient.joinedQueueCallback = joinedQueueCallback;
+                window.multiplayerClient.leftQueueCallback = leftQueueCallback;
+
+                queueButtonWrapper.appendChild(queueButton);
+                ranked1v1Div.appendChild(queueButtonWrapper);
+
+
+                /* menu exit button */
+                const l = document.createElement("div");
+                l.className = "button-wrapper",
+                get(this, sL, "f").appendChild(l);
+
+                const c = document.createElement("button");
+                c.className = "button cancel",
+                c.innerHTML = '<img class="button-icon" src="images/cancel.svg"> ';
+
+                c.append(document.createTextNode(t.get("Cancel"))),
+                c.addEventListener("click", ( () => {
+                    n.playUIClick(),
+                    // i.updateSettings(Array.from(get(this, hI, "f"))),
+                    // r.generateMeshes(),
+                    exitMenu()
+                }
+                )),
+                l.appendChild(c);
+
+                const refreshButton = document.createElement("button");
+                refreshButton.className = "button refresh",
+                refreshButton.innerHTML = '<img class="button-icon" src="images/redo.svg"> ';
+
+                refreshButton.append(document.createTextNode(t.get("Refresh"))),
+                refreshButton.addEventListener("click", ( () => {
+                    n.playUIClick();
+                    window.multiplayerClient.updateRankingsInfo();
+                }));
+                l.appendChild(refreshButton);
+
+                window.addEventListener("keydown", set(this, lL, (e => {
+                    "Escape" == e.code && (exitMenu(),
+                    e.preventDefault())
+                }
+                ), "f"))
+            }
+            dispose() {
+                get(this, $R, "f").removeChild(get(this, sL, "f")),
+                window.removeEventListener("keydown", get(this, lL, "f"))
+            }
+        };
+        
         var kL = i(5586)
           , EL = {};
         EL.styleTagTransform = u(),
@@ -43823,25 +44106,25 @@ function sendCarMultiplayerData(data, isPaused) {
                 n.carColors = e,
                 get(this, pD, "f").saveUserProfile(t, n.token, n.nickname, n.carColors)
             }
-            setHornColor(color, t=get(this, cL, "f")) {
+            setHornColor(color, t=get(this, fD, "f")) {
                 let profile;
-                if (t == get(this, cL, "f")) {
+                if (t == (this, fD, "f")) {
                     profile = get(this, currentUserProfile, "f");
                 } else {
-                    profile = get(this, sL, "m", loadUserProfile2).call(this, t);
+                    profile = get(this, dD, "m", loadUserProfile2).call(this, t);
                 }
                 profile.hornColor = color,
-                get(this, lL, "f").saveUserProfile(t, profile.token, profile.nickname, profile.carColors, profile.hornColor, profile.carStripeId)
+                get(this, pD, "f").saveUserProfile(t, profile.token, profile.nickname, profile.carColors, profile.hornColor, profile.carStripeId)
             }
-            setCarWrapId(wrapId, t=get(this, cL, "f")) {
+            setCarWrapId(wrapId, t=get(this, fD, "f")) {
                 let profile;
-                if (t == get(this, cL, "f")) {
+                if (t == (this, fD, "f")) {
                     profile = get(this, currentUserProfile, "f");
                 } else {
-                    profile = get(this, sL, "m", loadUserProfile2).call(this, t);
+                    profile = get(this, dD, "m", loadUserProfile2).call(this, t);
                 }
                 profile.carStripeId = wrapId,
-                get(this, lL, "f").saveUserProfile(t, profile.token, profile.nickname, profile.carColors, profile.hornColor, profile.carStripeId)
+                get(this, pD, "f").saveUserProfile(t, profile.token, profile.nickname, profile.carColors, profile.hornColor, profile.carStripeId)
             }
             get profileSlot() {
                 return get(this, fD, "f")
@@ -44168,7 +44451,7 @@ function sendCarMultiplayerData(data, isPaused) {
             console.error(e)
         }
         let VD = !0;
-        var GD, jD, QD, KD, qD, primaryMenuDiv, XD, ZD, JD, $D, trackSelectionScreen, trackSelectionMenu, settingsMenu, rankedMenu, iN, rN, aN, sN, oN, lN, cN, hN, dN, uN, pN, initTrackCategorySelectionScreen, generateMainMenuButtons2, generateCreditText, vN, showMainMenu, hidePolytrackLogo, showPolytrackLogo, createRankedMenu, AN, set = function(e, t, n, i, r) {
+        var GD, jD, QD, KD, qD, primaryMenuDiv, XD, ZD, JD, $D, trackSelectionScreen, trackSelectionMenu, settingsMenu, rankedMenu, iN, rN, aN, sN, oN, lN, cN, hN, dN, uN, pN, initTrackCategorySelectionScreen, generateMainMenuButtons2, generateCreditText, hideMainMenu, showMainMenu, hidePolytrackLogo, showPolytrackLogo, createRankedMenu, AN, set = function(e, t, n, i, r) {
             if ("m" === i)
                 throw new TypeError("Private method is not writable");
             if ("a" === i && !r)
@@ -44272,7 +44555,8 @@ function sendCarMultiplayerData(data, isPaused) {
                     )) : l.then((e => {
                         c(metadata, trackData, trackCategory, e)
                     }
-                    )).catch(( () => {
+                    )).catch(( (error) => {
+                        console.log(error);
                         a.show(e.get("Failed to load recordings"), e.get("Ok"), ( () => {
                             set(this, trackSelectionMenu, new TrackSelectedMenu(get(this, primaryMenuDiv, "f"),e,o,r,n,t,a,metadata,trackData,trackId,trackPreviewCanvas2,i,f,g,loadIntoTrack0,v,w), "f")
                         }
@@ -44299,7 +44583,7 @@ function sendCarMultiplayerData(data, isPaused) {
             ))
         }
         ,
-        generateMainMenuButtons2 = function generateMainMenuButtons(langObject, audioCtx, i, r, a, s, profileManager, l, c, h, dialogueBox, u, p, f, m, g, v) {
+        generateMainMenuButtons2 = function generateMainMenuButtons(langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g, v) {
             for (const e of get(this, lN, "f"))
                 get(this, oN, "f").removeChild(e);
             set(this, lN, [], "f");
@@ -44337,16 +44621,16 @@ function sendCarMultiplayerData(data, isPaused) {
             x.innerHTML = '<img src="images/settings.svg">',
             x.addEventListener("click", ( () => {
                 audioCtx.playUIClick(),
-                get(this, GD, "m", vN).call(this),
+                get(this, GD, "m", hideMainMenu).call(this),
                 get(this, GD, "m", hidePolytrackLogo).call(this),
-                set(this, settingsMenu, new xL(get(this, primaryMenuDiv, "f"),langObject,audioCtx,i,r,a,dialogueBox,( () => {
+                set(this, settingsMenu, new SettingsMenu(get(this, primaryMenuDiv, "f"),langObject,audioCtx,i,settingsManager,worldEnvironment,dialogueBox,( () => {
                     var w;
                     null === (w = get(this, settingsMenu, "f")) || void 0 === w || w.dispose(),
                     set(this, settingsMenu, null, "f"),
                     get(this, trackSelectionScreen, "f").dispose(),
-                    set(this, trackSelectionScreen, get(this, GD, "m", initTrackCategorySelectionScreen).call(this, langObject, audioCtx, l, s, profileManager, dialogueBox, c, h, f, m), "f"),
+                    set(this, trackSelectionScreen, get(this, GD, "m", initTrackCategorySelectionScreen).call(this, langObject, audioCtx, l, s, profileManager, dialogueBox, c, h, loadCarIntoTrack2, m), "f"),
                     get(this, GD, "m", generateCreditText).call(this, langObject),
-                    get(this, GD, "m", generateMainMenuButtons).call(this, langObject, audioCtx, i, r, a, s, profileManager, l, c, h, dialogueBox, u, p, f, m, g, v),
+                    get(this, GD, "m", generateMainMenuButtons).call(this, langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g, v),
                     get(this, GD, "m", showMainMenu).call(this),
                     get(this, GD, "m", showPolytrackLogo).call(this)
                 }
@@ -44363,7 +44647,7 @@ function sendCarMultiplayerData(data, isPaused) {
             E.innerHTML = '<img src="images/helmet.svg">',
             E.addEventListener("click", ( () => {
                 audioCtx.playUIClick(),
-                get(this, GD, "m", vN).call(this);
+                get(this, GD, "m", hideMainMenu).call(this);
                 const importProfileDialogueBox = (i, a) => {
                     set(this, aN, new HD(audioCtx,langObject,a,( () => {
                         var e;
@@ -44510,7 +44794,7 @@ function sendCarMultiplayerData(data, isPaused) {
             M.innerHTML = '<img src="images/play.svg">',
             M.addEventListener("click", ( () => {
                 audioCtx.playUIClick(),
-                get(this, GD, "m", vN).call(this),
+                get(this, GD, "m", hideMainMenu).call(this),
                 get(this, GD, "m", hidePolytrackLogo).call(this),
                 get(this, trackSelectionScreen, "f").show()
             }
@@ -44536,9 +44820,9 @@ function sendCarMultiplayerData(data, isPaused) {
                 window.multiplayerClient.setUsername(currentProfile.nickname);
                 window.multiplayerClient.setCarColors(currentProfile.carColors);
 
-                get(this, FL, "m", hideMainMenu).call(this);
-                get(this, FL, "m", hidePolytrackLogo).call(this);
-                get(this, FL, "m", createRankedMenu).call(this, langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g);
+                get(this, GD, "m", hideMainMenu).call(this);
+                get(this, GD, "m", hidePolytrackLogo).call(this);
+                get(this, GD, "m", createRankedMenu).call(this, langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g);
             }
             ));
             const playRankedText = document.createElement("p");
@@ -44607,8 +44891,11 @@ function sendCarMultiplayerData(data, isPaused) {
             const cwcCredit = document.createElement("a");
             cwcCredit.href = "https://cwcinc.itch.io/",
             cwcCredit.target = "_blank",
-            cwcCredit.textContent = 'Multiplayer Mod by Cwcinc',
-            get(this, JD, "f").appendChild(cwcCredit);
+            cwcCredit.textContent = 'Multiplayer Mod by Cwcinc';
+            const doraCredit = document.createElement("a");
+            doraCredit.target = "_blank",
+            doraCredit.textContent = 'UI by DoraChad😛',
+            get(this, JD, "f").appendChild(doraCredit);
             get(this, JD, "f").appendChild(document.createElement("br"));
             const i = document.createElement("a");
             i.href = "https://www.kodub.com/privacy/polytrack",
@@ -44617,7 +44904,7 @@ function sendCarMultiplayerData(data, isPaused) {
             get(this, JD, "f").appendChild(i)
         }
         ,
-        vN = function() {
+        hideMainMenu = function() {
             var e;
             null === (e = get(this, sN, "f")) || void 0 === e || e.classList.add("hidden"),
             get(this, oN, "f").classList.add("hidden");
@@ -44673,11 +44960,11 @@ function sendCarMultiplayerData(data, isPaused) {
                             set(this, rankedMenu, null, "f"),
 
                             get(this, trackSelectionScreen, "f").dispose(),
-                            set(this, trackSelectionScreen, get(this, FL, "m", initTrackCategorySelectionScreen).call(this, langObject, audioCtx, l, s, profileManager, dialogueBox, c, h, loadCarIntoTrack2, m), "f"),
-                            get(this, FL, "m", generateCreditText).call(this, langObject),
-                            get(this, FL, "m", generateMainMenuButtons2).call(this, langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g),
-                            get(this, FL, "m", showMainMenu).call(this),
-                            get(this, FL, "m", showPolytrackLogo).call(this)
+                            set(this, trackSelectionScreen, get(this, GD, "m", initTrackCategorySelectionScreen).call(this, langObject, audioCtx, l, s, profileManager, dialogueBox, c, h, loadCarIntoTrack2, m), "f"),
+                            get(this, GD, "m", generateCreditText).call(this, langObject),
+                            get(this, GD, "m", generateMainMenuButtons2).call(this, langObject, audioCtx, i, settingsManager, worldEnvironment, s, profileManager, l, c, h, dialogueBox, u, p, loadCarIntoTrack2, m, g),
+                            get(this, GD, "m", showMainMenu).call(this),
+                            get(this, GD, "m", showPolytrackLogo).call(this)
                         }
             )), "f")
         }
@@ -47433,7 +47720,7 @@ function sendCarMultiplayerData(data, isPaused) {
                                     return void reject(new Error("JSON item is not an object"));
                                 if ("string" != typeof e.recording)
                                     return void reject(new Error("JSON item recording field has incorrect type"));
-                                const t = cv.deserialize(e.recording);
+                                const t = Lv.deserialize(e.recording);
                                 if (null == t)
                                     return void reject(new Error("Failed to deserialize recording"));
                                 if ("number" != typeof e.verifiedState)
@@ -47467,7 +47754,7 @@ function sendCarMultiplayerData(data, isPaused) {
             submitLeaderboard(userToken, username, carColors, trackId, recordingTime, rawRecording) {
                 // "version=" + versionNumber + "&userToken=" + encodeURIComponent(userToken) + "&name=" + encodeURIComponent(username) + "&carColors=" + carColors.serialize() + "&trackId=" + trackId + "&frames=" + recordingTime.numberOfFrames.toString() + "&recording=" + recording
                 return new Promise((resolve, reject) => {
-                    if (this.determinismState != VI.Ok)
+                    if (this.determinismState != HT.Ok)
                         reject(new Error("Submit not allowed"));
                     const recording = rawRecording.serialize();
                     if (recording.length >= VB(this, WB, "f"))
@@ -47585,7 +47872,7 @@ function sendCarMultiplayerData(data, isPaused) {
                         if ("string" != typeof profileName)
                             return void reject(new Error("Name is not a string"));
 
-                        const a = vL(profileName);
+                        const a = xD(profileName);
                         if (0 == a || a > 50)
                             return void reject(new Error("Name as invalid length"));
 
@@ -47663,7 +47950,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 null != n && rz(this, JU, "m", nz).call(this, n)
             }
             defaultSettings() {
-                return new Map([[el.ImperialUnitsEnabled, "false"], [el.ResetHintEnabled, "true"], [el.GhostCarEnabled, "true"], [el.DefaultCameraMode, "false"], [el.CockpitCameraToggle, "true"], [el.Checkpoints, "bottom"], [el.Timer, "bottom"], [el.Speedometer, "bottom"], [el.Language, "en-US"], [el.ShadowQuality, "2"], [el.CloudsEnabled, "true"], [el.ParticlesEnabled, "true"], [el.SkidmarksEnabled, "true"], [el.RenderScale, "1"], [el.Antialiasing, "true"], [el.SoundEffectVolume, "1"], [el.MusicVolume, "1"], [el.CheckpointVolume, "1"], [el.VibrationEnabled, "false"], [el.TouchSteeringSide, "true"]])
+                return new Map([[el.ImperialUnitsEnabled, "false"], [el.SpectatorAcceleration, "1"], [el.BackwardsCameraToggle, "false"], [el.MultiplayerSmoothingEnabled, "true"], [el.ResetHintEnabled, "true"], [el.GhostCarEnabled, "true"], [el.DefaultCameraMode, "false"], [el.CockpitCameraToggle, "true"], [el.Checkpoints, "bottom"], [el.Timer, "bottom"], [el.Speedometer, "bottom"], [el.Language, "en-US"], [el.ShadowQuality, "2"], [el.CloudsEnabled, "true"], [el.ParticlesEnabled, "true"], [el.SkidmarksEnabled, "true"], [el.RenderScale, "1"], [el.Antialiasing, "true"], [el.SoundEffectVolume, "1"], [el.MusicVolume, "1"], [el.CheckpointVolume, "1"], [el.VibrationEnabled, "false"], [el.TouchSteeringSide, "true"]])
             }
             defaultKeyBindings() {
                 return new Map([
@@ -52851,14 +53138,14 @@ function sendCarMultiplayerData(data, isPaused) {
                         if (!e.repeat) {
                             const e = get(this, replayGhostCars, "f")[get(this, TO, "f")].car;
                             if (!e.hasFinished()) {
-                                if (get(this, SO, "f").getSettingBoolean($o.BackwardsCameraToggle)) {
+                                if (get(this, SO, "f").getSettingBoolean(el.BackwardsCameraToggle)) {
                                     if (get(this, xO, "f").camera != e.cameraOrbitBackwards) {
                                         get(this, xO, "f").setCamera(e.cameraOrbitBackwards)
                                     } else {
                                         get(this, xO, "f").setCamera(e.cameraOrbit)
                                     }
                                 } else {
-                                    if (get(this, SO, "f").getSettingBoolean($o.DefaultCameraMode)) {
+                                    if (get(this, SO, "f").getSettingBoolean(el.DefaultCameraMode)) {
                                         get(this, xO, "f").setCamera(e.cameraOrbit)
                                     } else {
                                         get(this, xO, "f").setCamera(e.cameraCockpit)
