@@ -1,5 +1,68 @@
+let seasonalScroll;
+let seasonalContents;
+let seasonalTab;
+
+const seasonalTracks = {
+    1: "Track1",
+    2: "Track2",
+    3: "Track3",
+    4: "Track4",
+    5: "Track5",
+    6: "Track6",
+    7: "Track7",
+    8: "Track8",
+    9: "Track9",
+    10: "Track10"
+}
+
+const loadSeasonalTracks = function() {
+    const title = document.createElement("p")
+    title.textContent = "---- Winter 1 ----"
+    title.style.textAlign = "center";
+    title.style.color = "white";
+    title.style.fontSize = "70px";
+    title.style.margin = "20px";
+    seasonalContents.appendChild(title)
+    
+    const scroll = document.createElement("div");
+    scroll.className = "seasonal-tracks";
+    seasonalContents.appendChild(scroll);
+
+    for (let e = 1; e < 11; e++) {
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "seasonal-content";
+        scroll.appendChild(contentDiv);
+
+        const title = document.createElement("p");
+        title.textContent = seasonalTracks[e];
+        title.style.color = "white";
+        title.style.margin = "10px 10px";
+        title.style.fontSize = "45px";
+
+        contentDiv.appendChild(title);
+    }
+}
+
 const rankedStyles = document.createElement("style");
 rankedStyles.textContent = `
+.seasonal-content {
+    width: 100%;
+    height: 180px;
+    background-image: url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes-03.png);
+    background-size: cover;
+    flex-shrink: 0;
+}
+.seasonal-tracks {
+    gap: 20px;
+    padding: 20px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: clip;
+    direction: rtl;
+    height: 100%;
+}
 /* ===========================
     Preview Toolbar
     =========================== */
@@ -263,6 +326,7 @@ rankedStyles.textContent = `
 `
 
 document.head.appendChild(rankedStyles);
+
 
 
 let carStripeCanvas;
@@ -36527,7 +36591,7 @@ function sendCarMultiplayerData(data, isPaused) {
         qk = new WeakMap,
         Yk = new WeakMap;
         const TimerObject2 = TimerObject;
-        var eE, tE, nE, iE, rE, aE, sE, oE, lE, cE, loadIntoTrack1, dE, uE, pE, fE, mE, gE, vE, wE, yE, bE, AE, xE, kE, EE, SE, ME, _E, TE, loadTrackSelectionBox, selectTrackTab, IE, set = function(e, t, n, i, r) {
+        var eE, tE, nE, iE, rE, aE, sE, oE, lE, cE, loadIntoTrack1, dE, uE, pE, fE, mE, gE, vE, wE, yE, seasonalTabSwitch, bE, AE, xE, kE, EE, SE, ME, _E, TE, loadTrackSelectionBox, selectTrackTab, IE, set = function(e, t, n, i, r) {
             if ("m" === i)
                 throw new TypeError("Private method is not writable");
             if ("a" === i && !r)
@@ -36566,6 +36630,7 @@ function sendCarMultiplayerData(data, isPaused) {
         vE = new WeakMap,
         wE = new WeakMap,
         yE = new WeakMap,
+        seasonalTabSwitch = new WeakMap,
         bE = new WeakMap,
         AE = new WeakMap,
         xE = new WeakMap,
@@ -36586,6 +36651,9 @@ function sendCarMultiplayerData(data, isPaused) {
                 break;
             case "community":
                 o = get(this, yE, "f");
+                break;
+            case "seasonal":
+                o = get(this, seasonalTabSwitch, "f");
                 break;
             case "custom":
                 o = get(this, bE, "f")
@@ -36700,22 +36768,43 @@ function sendCarMultiplayerData(data, isPaused) {
         selectTrackTab = function(e) {
             DE = e,
             get(this, lE, "f").saveTrackSelectionTab(DE),
-            "official" == e ? (get(this, uE, "f").classList.add("selected"),
-            get(this, pE, "f").classList.remove("selected"),
-            get(this, fE, "f").classList.remove("selected"),
-            get(this, mE, "f").classList.add("open"),
-            get(this, gE, "f").classList.remove("open"),
-            get(this, vE, "f").classList.remove("open")) : "community" == e ? (get(this, uE, "f").classList.remove("selected"),
-            get(this, pE, "f").classList.add("selected"),
-            get(this, fE, "f").classList.remove("selected"),
-            get(this, mE, "f").classList.remove("open"),
-            get(this, gE, "f").classList.add("open"),
-            get(this, vE, "f").classList.remove("open")) : (get(this, uE, "f").classList.remove("selected"),
-            get(this, pE, "f").classList.remove("selected"),
-            get(this, fE, "f").classList.add("selected"),
-            get(this, mE, "f").classList.remove("open"),
-            get(this, gE, "f").classList.remove("open"),
-            get(this, vE, "f").classList.add("open"))
+            "official" == e ? 
+                (get(this, uE, "f").classList.add("selected"),
+                get(this, pE, "f").classList.remove("selected"),
+                get(this, fE, "f").classList.remove("selected"),
+                seasonalTab.classList.remove("selected"),
+                seasonalContents.classList.remove("open"),
+                get(this, mE, "f").classList.add("open"),
+                get(this, gE, "f").classList.remove("open"),
+                get(this, vE, "f").classList.remove("open"))
+            : "community" == e ?     
+                (get(this, uE, "f").classList.remove("selected"),
+                get(this, pE, "f").classList.add("selected"),
+                get(this, fE, "f").classList.remove("selected"),
+                seasonalTab.classList.remove("selected"),
+                seasonalContents.classList.remove("open"),
+                get(this, mE, "f").classList.remove("open"),
+                get(this, gE, "f").classList.add("open"),
+                get(this, vE, "f").classList.remove("open")) 
+                
+            : "seasonal" == e ?     
+                (get(this, uE, "f").classList.remove("selected"),
+                get(this, pE, "f").classList.remove("selected"),
+                get(this, fE, "f").classList.remove("selected"),
+                seasonalTab.classList.add("selected"),
+                seasonalContents.classList.add("open"),
+                get(this, mE, "f").classList.remove("open"),
+                get(this, gE, "f").classList.remove("open"),
+                get(this, vE, "f").classList.remove("open")) 
+            
+            : (get(this, uE, "f").classList.remove("selected"),
+                get(this, pE, "f").classList.remove("selected"),
+                get(this, fE, "f").classList.add("selected"),
+                seasonalTab.classList.remove("selected"),
+                seasonalContents.classList.remove("open"),
+                get(this, mE, "f").classList.remove("open"),
+                get(this, gE, "f").classList.remove("open"),
+                get(this, vE, "f").classList.add("open"))
         }
         ,
         IE = function() {
@@ -36723,7 +36812,7 @@ function sendCarMultiplayerData(data, isPaused) {
             const t = get(this, xE, "f").value.trim().toLowerCase();
             for (const n of get(this, AE, "f"))
                 n.trackMetadata.name.toLowerCase().includes(t) || (null === (e = n.trackMetadata.author) || void 0 === e ? void 0 : e.toLowerCase().includes(t)) ? n.buttonContainer.style.display = "" : n.buttonContainer.style.display = "none";
-            for (const e of ["official", "community", "custom"]) {
+            for (const e of ["official", "community", "seasonal", "custom"]) {
                 let t;
                 switch (e) {
                 case "official":
@@ -36731,6 +36820,9 @@ function sendCarMultiplayerData(data, isPaused) {
                     break;
                 case "community":
                     t = get(this, yE, "f");
+                    break;
+                case "seasonal":
+                    t = get(this, seasonalTabSwitch, "f");;
                     break;
                 case "custom":
                     t = get(this, bE, "f")
@@ -36769,6 +36861,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 vE.set(this, void 0),
                 wE.set(this, new Map),
                 yE.set(this, new Map),
+                seasonalTabSwitch.set(this, new Map),
                 bE.set(this, new Map),
                 AE.set(this, []),
                 xE.set(this, void 0),
@@ -36846,12 +36939,12 @@ function sendCarMultiplayerData(data, isPaused) {
                 get(this, fE, "f").prepend(v);
 
                 
-                const seasonalTab = document.createElement("button");
-                seasonalTab.className = "button official",
+                seasonalTab = document.createElement("button");
+                seasonalTab.className = "button seasonal",
                 seasonalTab.append(document.createTextNode(get(this, nE, "f").get("Seasonal Tournament"))),
                 seasonalTab.addEventListener("click", ( () => {
                     get(this, iE, "f").playUIClick(),
-                    get(this, eE, "m", selectTrackTab).call(this, "official")
+                    get(this, eE, "m", selectTrackTab).call(this, "seasonal")
                 }
                 )),
                 f.appendChild(seasonalTab);
@@ -36869,23 +36962,60 @@ function sendCarMultiplayerData(data, isPaused) {
                 set(this, vE, document.createElement("div"), "f"),
                 get(this, vE, "f").className = "tracks-container",
                 get(this, dE, "f").appendChild(get(this, vE, "f"));
+                seasonalContents = document.createElement("div");
+                seasonalContents.className = "tracks-container";
+                seasonalContents.style.padding = "0";
+                seasonalContents.style.overflow = "hidden";
+                get(this, dE, "f").appendChild(seasonalContents);
                 let w = null;
                 const y = e => {
-                    w = 1 == e.touches.length ? {
+                    w = e.touches.length === 1
+                    ? {
                         x: e.touches[0].clientX,
                         y: e.touches[0].clientY,
                         time: Date.now()
-                    } : null
-                }
-                  , b = e => {
-                    if (null != w && 1 == e.changedTouches.length) {
-                        const t = e.changedTouches[0].clientX - w.x
-                          , n = e.changedTouches[0].clientY - w.y;
-                        Date.now() - w.time < 500 && Math.abs(t) > 75 && Math.abs(n) < Math.abs(t) && (t > 0 ? "community" == DE ? get(this, eE, "m", selectTrackTab).call(this, "official") : "custom" == DE && get(this, eE, "m", selectTrackTab).call(this, "community") : "official" == DE ? get(this, eE, "m", selectTrackTab).call(this, "community") : "community" == DE && get(this, eE, "m", selectTrackTab).call(this, "custom"))
-                    }
-                    w = null
-                }
-                ;
+                      }
+                    : null;
+                    };
+                    
+                    const b = e => {
+                        if (w != null && e.changedTouches.length === 1) {
+                        const t = e.changedTouches[0].clientX - w.x;
+                        const n = e.changedTouches[0].clientY - w.y;
+                        
+                        const isQuick = Date.now() - w.time < 500;
+                        const isHorizontal = Math.abs(t) > 75 && Math.abs(n) < Math.abs(t);
+                        
+                        if (isQuick && isHorizontal) {
+                            if (t > 0) {
+                                // Swipe right
+                                if (DE === "community") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "official");
+                                } else if (DE === "custom") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "community");
+                                } else if (DE === "seasonal") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "custom");
+                                }
+                                
+                            } else {
+                                // Swipe left
+                                if (DE === "official") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "community");
+                                } else if (DE === "community") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "custom");
+                                } else if (DE === "custom") {
+                                    get(this, eE, "m", selectTrackTab).call(this, "seasonal");
+                                }
+                              }
+                            }
+                        }
+                        
+                        w = null;
+                    };
+
+                seasonalContents.addEventListener("touchstart", y, {
+                    passive: !0
+                }),
                 get(this, mE, "f").addEventListener("touchstart", y, {
                     passive: !0
                 }),
@@ -36896,6 +37026,9 @@ function sendCarMultiplayerData(data, isPaused) {
                     passive: !0
                 }),
                 get(this, mE, "f").addEventListener("touchend", b, {
+                    passive: !0
+                }),
+                seasonalContents.addEventListener("touchend", b, {
                     passive: !0
                 }),
                 get(this, gE, "f").addEventListener("touchend", b, {
@@ -36968,6 +37101,12 @@ function sendCarMultiplayerData(data, isPaused) {
                     get(this, SE, "f") && this.refresh()
                 }
                 ), "f")),
+                seasonalContents.addEventListener("scroll", ( () => {
+                    seasonalScroll = seasonalContents.scrollTop
+                }
+                ), {
+                    passive: !0
+                }),
                 get(this, mE, "f").addEventListener("scroll", ( () => {
                     NE = get(this, mE, "f").scrollTop
                 }
@@ -37009,30 +37148,53 @@ function sendCarMultiplayerData(data, isPaused) {
                 set(this, EE, !0, "f"),
                 get(this, SE, "f") || this.refresh(),
                 null == DE && (DE = get(this, lE, "f").loadTrackSelectionTab()),
-                "official" == DE ? (get(this, uE, "f").classList.add("selected"),
-                get(this, pE, "f").classList.remove("selected"),
-                get(this, fE, "f").classList.remove("selected"),
-                get(this, mE, "f").classList.add("open"),
-                get(this, gE, "f").classList.remove("open"),
-                get(this, vE, "f").classList.remove("open"),
-                get(this, mE, "f").scrollTop = NE) : "community" == DE ? (get(this, uE, "f").classList.remove("selected"),
-                get(this, pE, "f").classList.add("selected"),
-                get(this, fE, "f").classList.remove("selected"),
-                get(this, mE, "f").classList.remove("open"),
-                get(this, gE, "f").classList.add("open"),
-                get(this, vE, "f").classList.remove("open"),
-                get(this, gE, "f").scrollTop = BE) : (get(this, uE, "f").classList.remove("selected"),
-                get(this, pE, "f").classList.remove("selected"),
-                get(this, fE, "f").classList.add("selected"),
-                get(this, mE, "f").classList.remove("open"),
-                get(this, gE, "f").classList.remove("open"),
-                get(this, vE, "f").classList.add("open"),
-                get(this, vE, "f").scrollTop = UE)
+                "official" == DE ? 
+                    (get(this, uE, "f").classList.add("selected"),
+                    get(this, pE, "f").classList.remove("selected"),
+                    get(this, fE, "f").classList.remove("selected"),
+                    seasonalTab.classList.remove("selected"),
+                    seasonalContents.classList.remove("open"),
+                    get(this, mE, "f").classList.add("open"),
+                    get(this, gE, "f").classList.remove("open"),
+                    get(this, vE, "f").classList.remove("open"),
+                    get(this, mE, "f").scrollTop = NE)
+                : "community" == DE ? 
+                    (get(this, uE, "f").classList.remove("selected"),
+                    get(this, pE, "f").classList.add("selected"),
+                    get(this, fE, "f").classList.remove("selected"),
+                    seasonalTab.classList.remove("selected"),
+                    seasonalContents.classList.remove("open"),
+                    get(this, mE, "f").classList.remove("open"),
+                    get(this, gE, "f").classList.add("open"),
+                    get(this, vE, "f").classList.remove("open"),
+                    get(this, gE, "f").scrollTop = BE)
+                : "seasonal" == DE ? 
+                    (get(this, uE, "f").classList.remove("selected"),
+                    get(this, pE, "f").classList.remove("selected"),
+                    get(this, fE, "f").classList.remove("selected"),
+                    seasonalTab.classList.add("selected"),
+                    seasonalContents.classList.add("open"),
+                    get(this, mE, "f").classList.remove("open"),
+                    get(this, gE, "f").classList.remove("open"),
+                    get(this, vE, "f").classList.remove("open"),
+                    get(this, gE, "f").scrollTop = seasonalScroll) 
+                : 
+                    (get(this, uE, "f").classList.remove("selected"),
+                    get(this, pE, "f").classList.remove("selected"),
+                    get(this, fE, "f").classList.add("selected"),
+                    seasonalTab.classList.remove("selected"),
+                    seasonalContents.classList.remove("open"),
+                    get(this, mE, "f").classList.remove("open"),
+                    get(this, gE, "f").classList.remove("open"),
+                    get(this, vE, "f").classList.add("open"),
+                    get(this, vE, "f").scrollTop = UE)
             }
             get isOpen() {
                 return get(this, EE, "f") || null != get(this, kE, "f")
             }
             refresh() {
+                seasonalContents.innerHTML = "";
+                loadSeasonalTracks();
                 if (set(this, AE, [], "f"),
                 get(this, mE, "f").innerHTML = "",
                 get(this, gE, "f").innerHTML = "",
@@ -37040,6 +37202,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 get(this, wE, "f").clear(),
                 get(this, yE, "f").clear(),
                 get(this, bE, "f").clear(),
+                get(this, seasonalTabSwitch, "f").clear(),
                 get(this, aE, "f").forEachOfficialTrack(( (e, t, n, i) => {
                     get(this, eE, "m", loadTrackSelectionBox).call(this, "official", t, n, e, i)
                 }
