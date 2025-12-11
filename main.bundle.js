@@ -1,18 +1,30 @@
 let seasonalScroll;
 let seasonalContents;
 let seasonalTab;
+let tab1Button;
+let tab2Button;
+
+const switchTab = function(tab) {
+    if (tab === "Teams") {
+        tab2Button.classList.add("selected");
+        tab1Button.classList.remove("selected");
+    } else {
+        tab2Button.classList.remove("selected");
+        tab1Button.classList.add("selected");
+    }
+}
 
 const seasonalTracks = {
-    1: "Track1",
-    2: "Track2",
-    3: "Track3",
-    4: "Track4",
-    5: "Track5",
-    6: "Track6",
-    7: "Track7",
-    8: "Track8",
-    9: "Track9",
-    10: "Track10"
+    1: ["Frozen Fjords", "By Zihcx"],
+    2: ["Termite Terror", "By Herny"],
+    3: ["Marvelous Marble", "By BonnieBeans"],
+    4: ["Pompeii", "By Amuq22"],
+    5: ["Lost At Sea", "By King Apollo"],
+    6: ["Imperius", "By Zihcx & Avalugg"],
+    7: ["Across the Polyverse", "By Big Beans Build Guild"],
+    8: ["Ye Olde Castle", "By Avalugg"],
+    9: ["Medieval Meadow", "By 2xi & Herny"],
+    10: ["Circle of Life", "By Bruther"]
 }
 
 //its public token no worries
@@ -29,6 +41,39 @@ const teams = {
     "TC": ["purple", "5e371611568753ddc95a3f7980d6cb8b5578c1a5a2a0e4e190fef9e4baab3e99", "e0992653f97d3c68beb97ee22bbbc53712b3664d196a48a308266df9234c1892"],
     "HN": ["orange", "ca3f0a3d824744072ce27944b0acbe7e7199263d2a17fa8603e1fbd2a9667723", "9bd2af211397a765b89ac3538a49914bf9a78e4d48e0d8b1f1e6ce97d19a94e1", "2fc59b9c068b985142e952cccc0a274147294b132d2a446d7d702c65bf63c5d7"],
     "KH": ["cream", "0701b67f46b4f32568f88f1cd5b55f8b4823f03c321eb1e8b03dc3d8fe553b22", "6bd6a6d7e812617f1b342cbeec1ec4df794abecedf833905636497e6f48bd0ca"]
+}
+
+const trackTags = {
+    1: ["Fullspeed", "Easy"],
+    2: ["Technical", "Medium"],
+    3: ["Fullspeed", "Hard"],
+    4: ["Technical", "Easy"],
+    5: ["Fullspeed", "Easy"],
+    6: ["Speedfun", "Medium"],
+    7: ["Technical", "Hard"],
+    8: ["Fullspeed", "Easy"],
+    9: ["Speedfun", "Medium"],
+    10: ["Fullspeed", "Medium"]
+}
+
+function toTrackFilename(name) {
+    return name
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "_") + ".track";
+}
+
+const getSeasonalTrackCode = async function(trackNum) {
+    const url = `https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/tracks/seasonal/${toTrackFilename(seasonalTracks[trackNum][0])}`;
+
+    const res = await fetch(url);
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+    }
+
+    return await res.text();
+
 }
 
 const loadSeasonalTracks = function() {
@@ -56,17 +101,55 @@ const loadSeasonalTracks = function() {
         scroll.appendChild(contentDiv);
 
         const button = document.createElement("button");
+        button.style.backgroundImage = `url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png)`;
+        button.addEventListener("click", async () => {
+            const code = await getSeasonalTrackCode(e);
+            forceLoadTrackByCode(code, true);
+        })
         contentDiv.appendChild(button);
 
         const title = document.createElement("p");
-        title.textContent = seasonalTracks[e];
+        title.textContent = seasonalTracks[e][0];
         title.style.color = "white";
-        title.style.margin = "10px 10px";
+        title.style.margin = "8px 20px";
         title.style.fontSize = "45px";
         title.style.zIndex = "1";
         title.style.position = "relative";
 
+        const author = document.createElement("p");
+        author.textContent = seasonalTracks[e][1];
+        author.style.color = "white";
+        author.style.margin = "0px 20px";
+        author.style.fontSize = "18px";
+        author.style.zIndex = "1";
+        author.style.position = "relative";
+
         contentDiv.appendChild(title);
+        contentDiv.appendChild(author);
+
+        
+        const tagDiv = document.createElement("div");
+        tagDiv.className = "tag-div";
+
+        for (let i = 0; i < 2; i++) {
+
+            const tag = document.createElement("div");
+            tag.className = "tag";
+    
+            const image = document.createElement("div");
+            image.className = "tag-img";
+            image.style.backgroundImage = `url("https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_${trackTags[e][i]}.png")`;
+    
+            const text = document.createElement("p")
+            text.textContent = trackTags[e][i];
+            text.className = "tag-text";
+    
+            tag.appendChild(image);
+            tag.appendChild(text);
+            tagDiv.appendChild(tag);
+        }
+
+        contentDiv.appendChild(tagDiv);
     }
 
     //SPACER
@@ -93,18 +176,22 @@ const loadSeasonalTracks = function() {
     const tab1Div = document.createElement("div");
     tab1Div.className = "tab-div";
 
-    const tab1Button = document.createElement("button")
+    tab1Button = document.createElement("button")
     tab1Button.className = "tab-button selected"
     tab1Div.appendChild(tab1Button);
 
+    tab1Button.addEventListener("click", () => {switchTab("Solo")})
+    
     tab1Button.appendChild(document.createTextNode("Solo"));
     
     const tab2Div = document.createElement("div");
     tab2Div.className = "tab-div";
 
-    const tab2Button = document.createElement("button")
+    tab2Button = document.createElement("button")
     tab2Button.className = "tab-button"
     tab2Div.appendChild(tab2Button);
+
+    tab2Button.addEventListener("click", () => {switchTab("Teams")});
     
     tab2Button.appendChild(document.createTextNode("Teams"));
 
@@ -114,6 +201,37 @@ const loadSeasonalTracks = function() {
 
 const rankedStyles = document.createElement("style");
 rankedStyles.textContent = `
+.tag-div {
+    width: 100%;
+    height: 25%;
+    position: absolute;
+    bottom: 5%;
+    display: flex;
+    flex-direction: row-reverse;
+}
+.tag {
+    color: white;
+    margin: 0 0 0 20px;
+    display: flex;
+    flex-direction: row-reverse;
+    height: 100%;
+    width: 30%;
+    align-items: center;
+}
+.tag-img {
+    background: blue;
+    height: 60%;
+    background-image: url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_%20Speedfun.png);
+    background-size: cover;
+    aspect-ratio: 1 / 1;
+    background-position: center;
+    overflow: hidden;
+    border-radius: 10px;
+}
+.tag-text {
+    margin: 0 10px;
+    font-size: 24px;
+}
 .tab-text {
     color: white;
     font-size: 25px;
@@ -145,8 +263,8 @@ rankedStyles.textContent = `
     z-index: -1;
     width: 0;
     height: 100%;
-    background: #112052; /* hover color like your first example */
-    border-bottom: 2px solid #fff; /* optional border like your first button */
+    background: #112052;
+    border-bottom: 2px solid #fff;
     transition: width 0.1s ease-in-out;
 }
 .tab-button:hover::after {
@@ -158,7 +276,6 @@ rankedStyles.textContent = `
 .tab-div {
     height: 100%;
     position: relative;
-    flex: 0.15;
 }
 .seasonal-lbs-contents {
     background: #28346a;
@@ -176,12 +293,12 @@ rankedStyles.textContent = `
 
 .seasonal-content {
     width: 100%;
-    height: 160px;
+    height: 180px;
     flex-shrink: 0;
     position: relative;
 }
 .seasonal-content > button {
-    background-image: url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes-03.png);
+    background-image: url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map3_Blank.png);
     background-size: cover;
     clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
     height: 100%;
@@ -190,6 +307,7 @@ rankedStyles.textContent = `
     top: 0;
     left: 0;
     border: none;
+    cursor: pointer;
 }
 .seasonal-tracks {
     gap: 20px;
@@ -612,13 +730,13 @@ function forceLoadMainTrackById(trackId, isRanked=false, quickLoad=false) {
     forceLoadTrack(trackInfo.metadata, trackInfo.trackData, "official", trackId, trackInfo.thumbnail, isRanked, quickLoad);
 }
 
-function forceLoadTrackByCode(trackCode) {
+function forceLoadTrackByCode(trackCode, quickLoad = false) {
     const trackInfo = window.decodeTrackFromExportString(trackCode);
     if (!trackInfo) {
         console.error("Invalid track data");
         return;
     }
-    forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", "", null, false)
+    forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", "", null, false, quickLoad)
 }
 
 var globalCarManagerReference = null;
@@ -44226,10 +44344,13 @@ function sendCarMultiplayerData(data, isPaused) {
                 b.textContent = o.name,
                 get(this, LL, "f").appendChild(b);
                 const A = document.createElement("canvas");
-                A.width = trackPreviewCanvas.width,
-                A.height = trackPreviewCanvas.height;
-                const x = A.getContext("2d");
-                null == x ? console.error("Failed to get 2D context for thumbnail canvas") : x.drawImage(trackPreviewCanvas, 0, 0);
+                if (trackPreviewCanvas) {
+                    A.width = trackPreviewCanvas.width,
+                    A.height = trackPreviewCanvas.height;
+                    const x = A.getContext("2d");
+                    null == x ? console.error("Failed to get 2D context for thumbnail canvas") : x.drawImage(trackPreviewCanvas, 0, 0);
+                }
+                
                 const k = document.createElement("div");
                 k.className = "thumbnail",
                 k.appendChild(A),
@@ -45163,7 +45284,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 }
                 ;
                 if (quickLoad) {
-                    get(this, FL, "m", hidePolytrackLogo).call(this);
+                    get(this, GD, "m", hidePolytrackLogo).call(this);
                     loadIntoTrack0([]);
                     return;
                 }
@@ -48218,82 +48339,84 @@ function sendCarMultiplayerData(data, isPaused) {
                 return new Promise((resolve, reject) => {
                     window.multiplayerClient.proxy.getLeaderboard(versionNumber, userId, trackId, skip, amount, onlyVerified).then(leaderboardData => {
                         // console.log("lbdata", leaderboardData);
-                        const a = leaderboardData.total;
-                        if ("number" != typeof a)
-                            return void reject(new Error("Total is not a number"));
-                        if (!Number.isSafeInteger(a))
-                            return void reject(new Error("Total is not a safe integer"));
-                        const s = leaderboardData.entries;
-                        if (!Array.isArray(s))
-                            return void reject(new Error("Entries is not an array"));
-                        const o = [];
-                        for (const t of s) {
-                            if (null == t)
-                                return void reject(new Error("Entry is missing"));
-                            if (!Object.prototype.hasOwnProperty.call(t, "id"))
-                                return void reject(new Error('Entry is missing "id" field'));
-                            if (!Object.prototype.hasOwnProperty.call(t, "userId"))
-                                return void reject(new Error('Entry is missing "userId" field'));
-                            if (!Object.prototype.hasOwnProperty.call(t, "name"))
-                                return void reject(new Error('Entry is missing "name" field'));
-                            if (!Object.prototype.hasOwnProperty.call(t, "frames"))
-                                return void reject(new Error('Entry is missing "frames" field'));
-                            if (!Object.prototype.hasOwnProperty.call(t, "carColors"))
-                                return void reject(new Error('Entry is missing "carColors" field'));
-                            if (!Object.prototype.hasOwnProperty.call(t, "verifiedState"))
-                                return void reject(new Error('Entry is missing "verifiedState" field'));
-                            if ("number" != typeof t.id)
-                                return void reject(new Error('"id" field has incorrect type'));
-                            if ("string" != typeof t.userId)
-                                return void reject(new Error('"userId" field has incorrect type'));
-                            if ("string" != typeof t.name)
-                                return void reject(new Error('"name" field has incorrect type'));
-                            if ("number" != typeof t.frames)
-                                return void reject(new Error('"frames" field has incorrect type'));
-                            if (!Number.isSafeInteger(t.frames) || t.frames <= 0 || t.frames > cv.maxFrames)
-                                return void reject(new Error('"frames" field has an invalid value'));
-                            if ("string" != typeof t.carColors)
-                                return void reject(new Error('"carColors" field has incorrect type'));
-                            if (!Number.isSafeInteger(t.verifiedState) || t.verifiedState < 0)
-                                return void reject(new Error('"verifiedState" field has an invalid value'));
-                            o.push({
-                                id: t.id,
-                                name: t.name,
-                                time: new TimeObject(t.frames),
-                                carColors: CarColors2.deserialize(t.carColors),
-                                verifiedState: t.verifiedState,
-                                isSelf: t.userId == userId
+                        if (leaderboardData) {
+                            const a = leaderboardData.total;
+                            if ("number" != typeof a)
+                                return void reject(new Error("Total is not a number"));
+                            if (!Number.isSafeInteger(a))
+                                return void reject(new Error("Total is not a safe integer"));
+                            const s = leaderboardData.entries;
+                            if (!Array.isArray(s))
+                                return void reject(new Error("Entries is not an array"));
+                            const o = [];
+                            for (const t of s) {
+                                if (null == t)
+                                    return void reject(new Error("Entry is missing"));
+                                if (!Object.prototype.hasOwnProperty.call(t, "id"))
+                                    return void reject(new Error('Entry is missing "id" field'));
+                                if (!Object.prototype.hasOwnProperty.call(t, "userId"))
+                                    return void reject(new Error('Entry is missing "userId" field'));
+                                if (!Object.prototype.hasOwnProperty.call(t, "name"))
+                                    return void reject(new Error('Entry is missing "name" field'));
+                                if (!Object.prototype.hasOwnProperty.call(t, "frames"))
+                                    return void reject(new Error('Entry is missing "frames" field'));
+                                if (!Object.prototype.hasOwnProperty.call(t, "carColors"))
+                                    return void reject(new Error('Entry is missing "carColors" field'));
+                                if (!Object.prototype.hasOwnProperty.call(t, "verifiedState"))
+                                    return void reject(new Error('Entry is missing "verifiedState" field'));
+                                if ("number" != typeof t.id)
+                                    return void reject(new Error('"id" field has incorrect type'));
+                                if ("string" != typeof t.userId)
+                                    return void reject(new Error('"userId" field has incorrect type'));
+                                if ("string" != typeof t.name)
+                                    return void reject(new Error('"name" field has incorrect type'));
+                                if ("number" != typeof t.frames)
+                                    return void reject(new Error('"frames" field has incorrect type'));
+                                if (!Number.isSafeInteger(t.frames) || t.frames <= 0 || t.frames > cv.maxFrames)
+                                    return void reject(new Error('"frames" field has an invalid value'));
+                                if ("string" != typeof t.carColors)
+                                    return void reject(new Error('"carColors" field has incorrect type'));
+                                if (!Number.isSafeInteger(t.verifiedState) || t.verifiedState < 0)
+                                    return void reject(new Error('"verifiedState" field has an invalid value'));
+                                o.push({
+                                    id: t.id,
+                                    name: t.name,
+                                    time: new TimeObject(t.frames),
+                                    carColors: CarColors2.deserialize(t.carColors),
+                                    verifiedState: t.verifiedState,
+                                    isSelf: t.userId == userId
+                                });
+                            }
+                            let l = null;
+                            if (null != leaderboardData.userEntry) {
+                                const e = leaderboardData.userEntry.position;
+                                if ("number" != typeof e)
+                                    return void reject(new Error("User position is not a number"));
+                                if (!Number.isSafeInteger(e))
+                                    return void reject(new Error("User position is not a safe integer"));
+                                const t = leaderboardData.userEntry.frames;
+                                if ("number" != typeof t)
+                                    return void reject(new Error("User frames is not a number"));
+                                if (!Number.isSafeInteger(t))
+                                    return void reject(new Error("User frames is not a safe integer"));
+                                const i = new TimeObject(t)
+                                    , a = leaderboardData.userEntry.id;
+                                if ("number" != typeof a)
+                                    return void reject(new Error("User record id is not a number"));
+                                if (!Number.isSafeInteger(a))
+                                    return void reject(new Error("User record id is not a safe integer"));
+                                l = {
+                                    position: e,
+                                    time: i,
+                                    id: a
+                                }
+                            }
+                            resolve({
+                                total: a,
+                                entries: o,
+                                userEntry: l
                             });
                         }
-                        let l = null;
-                        if (null != leaderboardData.userEntry) {
-                            const e = leaderboardData.userEntry.position;
-                            if ("number" != typeof e)
-                                return void reject(new Error("User position is not a number"));
-                            if (!Number.isSafeInteger(e))
-                                return void reject(new Error("User position is not a safe integer"));
-                            const t = leaderboardData.userEntry.frames;
-                            if ("number" != typeof t)
-                                return void reject(new Error("User frames is not a number"));
-                            if (!Number.isSafeInteger(t))
-                                return void reject(new Error("User frames is not a safe integer"));
-                            const i = new TimeObject(t)
-                                , a = leaderboardData.userEntry.id;
-                            if ("number" != typeof a)
-                                return void reject(new Error("User record id is not a number"));
-                            if (!Number.isSafeInteger(a))
-                                return void reject(new Error("User record id is not a safe integer"));
-                            l = {
-                                position: e,
-                                time: i,
-                                id: a
-                            }
-                        }
-                        resolve({
-                            total: a,
-                            entries: o,
-                            userEntry: l
-                        });
                     });
                 });
             }
@@ -54308,6 +54431,7 @@ function sendCarMultiplayerData(data, isPaused) {
                 audioContext2.load("editor_edit", ["audio/editor_edit.mp3"]),
                 audioContext2.load("checkpoint", ["audio/checkpoint.mp3"]),
                 audioContext2.load("finish", ["audio/checkpoint.mp3"]),
+
                 Sp.initResources(t),
                 Ox.initResources(t);
                 const o = new az(e)
