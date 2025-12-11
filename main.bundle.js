@@ -135,7 +135,6 @@ rankedStyles.textContent = `
     border: none;
     clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
     overflow: hidden;
-    position: absolute;
     padding: 0 15px;
 }
 .tab-button::after {
