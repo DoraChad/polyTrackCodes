@@ -9,6 +9,7 @@ let entriesDivTeam;
 let soloTitle;
 let teamsTitle;
 
+
 const switchTab = function(tab) {
     if (tab === "Teams") {
         tab2Button.classList.add("selected");
@@ -30,27 +31,27 @@ const switchTab = function(tab) {
 }
 
 const trackIds = {
-    1: "cdc9e392f2189731eb8635c087ec701fae48ac38a6700cb45d053658a2a5af1f",
-    2: "3b12541e3c134ab74d58e7c19f6940a03aa07a4f3465fa3392b85da09627db96",
-    3: "16ba5e78c8831f1e9d190c55b7ded92c9c699d4641c71b5bd81dcf7988d54312",
-    4: "7d7272ad9ff4c54cd1af271ce549d5194cb921f6c7d60796709e24aae3cda7ad",
-    5: "e89fec9c4cf0f766b7f9213e8fd4030663a8878d965daa72a16b962d96fee5bc",
-    6: "2fbf02680e22f00c7c30964ae7ef1de2958f503f0324bddfcdb8370891d78cca",
-    7: "2b02c78b74e2ac2c2595085f33aa87624364e21cf9e6c24360ddb37707899861",
-    8: "02526b78e43a189efbfc7ef14872a5b81c11d863ec17a14bd30823bdc98144c4",
-    9: "20b0a82dcc8f722a667da2f4c5b7672683dd07ea6ddad2c54cb2b494367647fd",
-    10: "0c21f24f19ff169cf454374172b73bab2ffdf6142ebf95fb92fb478b4176ac70"
+    1: "5016b4d6d86ca9935919d08656ca4b8b9b86d573835890ac066fa1d62810a6be",
+    2: "dce185c1b72f6f6b5d7804b2202a50218e15ba5425887b0b4a1e505584bfb4c8",
+    3: "b682f4351ef3fbe886ae7e9ef3429a0424a378245a25885ebbb97150166006e5",
+    4: "88731803cdee2e285680b27889e565fa55c29d3d2c49a776a1767db9d2ad07c8",
+    5: "fa516628700ecf56d9d423a0a869903df7adffebe6e1639ffa1c82b2c5d6ae6d",
+    6: "0950dd2704d4d123283ccdb0d4416f32b67dcb1ac38665299ef4a0473be48728",
+    7: "04a2902c20479285f4271f8ce8ef7003f22cb327c5541a22ee767d6ffd45570d",
+    8: "e3818e4f42e9ed3ccda896f7861017a93c0147de8791486d1bfaa176b487e408",
+    9: "026412fba2d69ca46db3cb9215138a697ef9daaa1db253951c61748e4ea1180c",
+    10: "655e9dafec265ebec9700c268039695ea6688137aca35377356ba5f7fc2ac6d7"
 }
 
 const seasonalTracks = {
-    1: ["Frozen Fjords", "By Zihcx"],
+    1: ["Frosted Fjords", "By Zihcx"],
     2: ["Termite Terror", "By Herny"],
     3: ["Marvelous Marble", "By BonnieBeans"],
     4: ["Pompeii", "By Amuq22"],
     5: ["Lost At Sea", "By King Apollo"],
-    6: ["Imperius", "By Zihcx & Avalugg"],
+    6: ["Imperius", "By Zihcx & An Avalugg"],
     7: ["Across the Polyverse", "By Big Beans Build Guild"],
-    8: ["Ye Olde Castle", "By Avalugg"],
+    8: ["Ye Olde Castle", "By An Avalugg"],
     9: ["Medieval Meadow", "By 2xi & Herny"],
     10: ["Circle of Life", "By Bruther"]
 }
@@ -85,13 +86,13 @@ const trackTags = {
     10: ["Fullspeed", "Medium"]
 }
 
+
 function toTrackFilename(name) {
     return name
         .trim()
         .toLowerCase()
         .replace(/\s+/g, "_") + ".track";
 }
-
 
 
 const getSeasonalTrackCode = async function(trackNum) {
@@ -204,7 +205,43 @@ function calculateTeamAverages(playersArray) {
     return sortedTeams;
 }
 
+async function preloadSeasonalImages() {
+    const urls = [];
 
+    for (let e = 1; e <= 10; e++) {
+        urls.push(`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png`);
+    }
+
+    const added = new Set();
+    for (let e = 1; e <= 10; e++) {
+        for (let tag of trackTags[e]) {
+            const url = `https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_${tag}.png`;
+            if (!added.has(url)) {
+                added.add(url);
+                urls.push(url);
+            }
+        }
+    }
+
+    const blobMap = {};
+
+    const fetches = await Promise.all(
+        urls.map(u => fetch(u).then(r => r.blob()))
+    );
+
+    // Decode each blob
+    for (let i = 0; i < urls.length; i++) {
+        const blobUrl = URL.createObjectURL(fetches[i]);
+        const img = new Image();
+        img.src = blobUrl;
+        await img.decode();   
+        blobMap[urls[i]] = blobUrl;
+    }
+
+    return blobMap;
+}
+
+const blobs = await preloadSeasonalImages();
 
 const loadSeasonalTracks = async function() {
 
@@ -234,7 +271,7 @@ const loadSeasonalTracks = async function() {
         scroll.appendChild(contentDiv);
 
         const button = document.createElement("button");
-        button.style.backgroundImage = `url(https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png)`;
+        button.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png`]}")`;
         button.addEventListener("click", async () => {
             const code = await getSeasonalTrackCode(e);
             forceLoadTrackByCode(code, true);
@@ -274,7 +311,7 @@ const loadSeasonalTracks = async function() {
     
             const image = document.createElement("div");
             image.className = "tag-img";
-            image.style.backgroundImage = `url("https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_${trackTags[e][i]}.png")`;
+            image.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_${trackTags[e][i]}.png`]}")`;
     
             const text = document.createElement("p")
             text.textContent = trackTags[e][i];
