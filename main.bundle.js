@@ -40,7 +40,8 @@ const trackIds = {
     7: "04a2902c20479285f4271f8ce8ef7003f22cb327c5541a22ee767d6ffd45570d",
     8: "e3818e4f42e9ed3ccda896f7861017a93c0147de8791486d1bfaa176b487e408",
     9: "026412fba2d69ca46db3cb9215138a697ef9daaa1db253951c61748e4ea1180c",
-    10: "655e9dafec265ebec9700c268039695ea6688137aca35377356ba5f7fc2ac6d7"
+    10: "655e9dafec265ebec9700c268039695ea6688137aca35377356ba5f7fc2ac6d7",
+    11: "c823b2eb6d4bbdcecbbdebd7c49623eb2569129458a997bfec80939792d6adb6"
 }
 
 const seasonalTracks = {
@@ -53,7 +54,8 @@ const seasonalTracks = {
     7: ["Across the Polyverse", "By Big Beans Build Guild"],
     8: ["Ye Olde Castle", "By An Avalugg"],
     9: ["Medieval Meadow", "By 2xi & Herny"],
-    10: ["Circle of Life", "By Bruther"]
+    10: ["Circle of Life", "By Bruther"],
+    11: ["Arrival", "By Skrdh"]
 }
 
 //its public token no worries
@@ -64,13 +66,20 @@ const teams = {
     "SR": ["My sister is related to me", "pink", "4e172e424c5817e62ff069cadd9aee6efb5413fecea17b4192156e7f13e818ff", "c53c5e4c61627b40b6ba304ab66284ffdf827330a2de8bb2765f78e7825b029b", "35eb5c466738dc9917d5f8320f5b99f12015247aaf0e512f5e4ecb547f00e0e1", "73564e467b27545084756d77ea3257d84d5794285221aac7ddbf39ed3448ad1c"],
     "SF": ["TheSpeedyFellas", "red", "2d77a47f57c2b45925bf2e21ac20c0d269772f9121e591685318c9814ccc5e3e", "c8873ca6a05717d0b8386dae318da578dd7e881f41359f4c0b02e28bb675efa8", "a1a2a3a22f0c4b452ff6254c82e0c351b79dbd0d46f34ee631cc4f6e7f0ed7f2", "c664b56045879cf0a9936de88335c5d00e24ef4318a230228404cdb7e5f7124c"],
     "AR": ["Asian rice", "white", "59f1b4d04609efa9e90dd3099f32a35f3f3f05ec5e443a9c03e5b51350770358", "37bd1c4319e0ed2985d0f95641c0813c09a894953c8bae174f620fb722be3624"],
-    "TM": ["Team", "turquoise"],
-    "ZL": ["THE ZESTY LEMON", "yellow"],
+    "TM": ["Team", "turquoise", "dd3ed2e64f7ccef4c716b5b5cd9933407c9c7e10ee1e8e4cd9d4b61cfee9d7b5", "479580a3039af9614f9c9b9181b306cd3d3aedbf5ca97ce32a844880b51f8ee1"],
+    "ZL": ["THE ZESTY LEMON", "yellow", "baa5f67720766bbb6c0a27206d42d12ebb24017dca0c8b45c9f136abaf91a46a", "3918ec76217081a6da61f2bd6572a1cbc2f53c525ceba351a6b46128474d34b8"],
     "WD": ["Webdashers", "darkgreen", "93bea4f8a4a3971884a83d861bd1721141f0edd7c7ff22959601be245957d11d", "4a8c6a0dcf45aa731cfffc77cf34a81d2e3a846863a4c52d97f6cd6573c7323c"],
     "TC": ["The Contract", "purple", "5e371611568753ddc95a3f7980d6cb8b5578c1a5a2a0e4e190fef9e4baab3e99", "e0992653f97d3c68beb97ee22bbbc53712b3664d196a48a308266df9234c1892"],
     "HN": ["Harold Holt's Little Nippers", "orange", "ca3f0a3d824744072ce27944b0acbe7e7199263d2a17fa8603e1fbd2a9667723", "9bd2af211397a765b89ac3538a49914bf9a78e4d48e0d8b1f1e6ce97d19a94e1", "2fc59b9c068b985142e952cccc0a274147294b132d2a446d7d702c65bf63c5d7"],
-    "KH": ["Kanye Hut", "#FFFDD0", "0701b67f46b4f32568f88f1cd5b55f8b4823f03c321eb1e8b03dc3d8fe553b22", "6bd6a6d7e812617f1b342cbeec1ec4df794abecedf833905636497e6f48bd0ca"],
-    "MR": ["Muhammad Rafly Fan Club", "black"]
+    "KH": ["Kanye Hut", "#FFFDD0", "0701b67f46b4f32568f88f1cd5b55f8b4823f03c321eb1e8b03dc3d8fe553b22", "6bd6a6d7e812617f1b342cbeec1ec4df794abecedf833905636497e6f48bd0ca", "8d598a9ac2688c92217aea99a390aacd8e1542c32642d1b9ca6058ffadda834a"],
+    "MR": ["Muhammad Rafly Fan Club", "black", "7f72039fcb9128f7e109063626787a56c54adad58b2aa3821479d4a4007332cb", "0242738c933112690c03077e63d1e5e6167029ddf2a4b909ae1736fb75c8b1bf", "0641686a43714adbe76dc63874648c04952dd91557add4000ef776b5197abb70", "e53a484eaff94a5c1201fa0cb57f7b6c73015b4c17d8bc4f1365e7a376697f67"],
+    "DR": ["Dutch Racers", "#E0B0FF", "c1e6bb7333bfe21da11c42bfe6133977876d515d53b8c061d34f40104bfda151", "d2538751e78f0edeeda9c210fe956f2d8d46c018053882dbf410666e4ce4a00d", "11dc5e3e993d06776661a771a06ed80a73d98ebe8415c6ff9b2a3158e14398fa", "5b211d298664cacb50721f5ba476a3592534ad0b83397ae15400d167e57603c8"],
+    "CS": ["ChillSync", "grey", "af0e56ec698f422920e5236aa11f2a88238dfc8a23ddcb442c7c46a5048e3442", "54ff09a64fa7d38e610d6dd06fe10c6d94693c2949f6440c7bac4cc9955bd264"],
+    "KT": ["Keeping track of time", "lightgrey", "5adfff7499525a01c4adcc394aa56398b8a0aab7b653d47cac4367919575289f", "00ab7a54bf83b514d190cf07786ae1c4c8a7bddaf53dd759eb308c63ab4f6afc", "bb495822a78e9e66da2040ef4bf44e347498150831442d352b7baa440fcc72d8", "d2779d5f89f8424337c4f5c156084574c86b5fb3570682a714bd66812ceee8db"],
+    "BE": ["Bacon Eaters", "maroon", "a6660bf3939374fdd1699e5ff63bda7b6de71e67e69e28beb67477e0208c3e17", "90f9ddcfede5c6d4b721ec4f9ebcc21f6a5a45f8157d9b2573d63e33bedceb07"],
+    "BB": ["Big Beanies", "palegreen", "1119cee228ed4a6246960413ee7095892f2b8db31ef6cd08e7ebddc1d4dddc72", "d2839684aed06f4ff47f4f7a0606ab7edece984bff87e80a56df117b150c58a1", "d2656449c4505e8e202001154addcc4ad00aad39feb03e35a66bd3486ed8c13d"],
+    "IS": ["I shidded", "brown", "92076737ff73724f621ae5cef0bbfe0e8a1ab7695aaa3b07aca28acf522b7e86", "4855ee3019704b53510975e2a8f28bc01f66dd9c2cba3a1a5aec6450926b1f4d", "4a409d4def10d60dfdb11d391130e6565217e7c864e1a407313d27bc9bd825a0", "1066c1559ddb647b28741a0352f800f80300b6bb97c23290cc03b1d1f53e131a"],
+    "PB": ["PB Dominion", "#FFDB58", "46566d0dc03ba18acf4833442d3086d8be1c81791822ac142634446d03e91617", "a1c3f4875aef0bc1ce32f898b9d97b1fc8e296954fdfd829ffbfe7a58ad3d1cc"]
 }
 
 const trackTags = {
@@ -83,7 +92,8 @@ const trackTags = {
     7: ["Technical", "Hard"],
     8: ["Fullspeed", "Easy"],
     9: ["Speedfun", "Medium"],
-    10: ["Fullspeed", "Medium"]
+    10: ["Fullspeed", "Medium"],
+    11: ["Fullspeed", "Medium"],
 }
 
 
@@ -109,7 +119,7 @@ const getSeasonalTrackCode = async function(trackNum) {
 }
 async function getSeasonalLeaderboard() {
     const urls = [];
-    for (let trackNum = 1; trackNum <= 10; trackNum++) {
+    for (let trackNum = 1; trackNum <= 11; trackNum++) {
         const url = `https://polyproxy.orangy.cfd/leaderboard?version=0.5.2&trackId=${trackIds[trackNum]}&skip=0&amount=200&onlyVerified=false`;
         urls.push(url);
     }
@@ -155,7 +165,7 @@ async function getSeasonalLeaderboard() {
     return Array.from(players.values());
 }
 
-function calculateAveragePlacement(playersMap, totalTracks = 10, defaultPlacement = 1000) {
+function calculateAveragePlacement(playersMap, totalTracks = 11, defaultPlacement = 1000) {
     const playersArray = Array.from(playersMap.values());
 
     playersArray.forEach(player => {
@@ -208,12 +218,12 @@ function calculateTeamAverages(playersArray) {
 async function preloadSeasonalImages() {
     const urls = [];
 
-    for (let e = 1; e <= 10; e++) {
+    for (let e = 1; e <= 11; e++) {
         urls.push(`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png`);
     }
 
     const added = new Set();
-    for (let e = 1; e <= 10; e++) {
+    for (let e = 1; e <= 11; e++) {
         for (let tag of trackTags[e]) {
             const url = `https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Icon_${tag}.png`;
             if (!added.has(url)) {
@@ -229,7 +239,6 @@ async function preloadSeasonalImages() {
         urls.map(u => fetch(u).then(r => r.blob()))
     );
 
-    // Decode each blob
     for (let i = 0; i < urls.length; i++) {
         const blobUrl = URL.createObjectURL(fetches[i]);
         const img = new Image();
@@ -265,7 +274,7 @@ const loadSeasonalTracks = async function() {
     scroll.className = "seasonal-tracks";
     horizontalDiv.appendChild(scroll);
 
-    for (let e = 1; e < 11; e++) {
+    for (let e = 1; e < 12; e++) {
         const contentDiv = document.createElement("div");
         contentDiv.className = "seasonal-content";
         scroll.appendChild(contentDiv);
@@ -486,7 +495,7 @@ rankedStyles.textContent = `
 }
 .tag-div {
     width: 100%;
-    height: 25%;
+    height: 40%;
     position: absolute;
     bottom: 5%;
     display: flex;
