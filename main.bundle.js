@@ -437,7 +437,7 @@ const loadSeasonalTracks = async function() {
     tabDiv.appendChild(tab1Div);
     tabDiv.appendChild(tab2Div);
 
-    const createEntry = function(parent, rank = "Rank", player = "Player", hidden=false, color=null, team) {
+    const createEntry = function(parent, rank = "Rank", player = "Player", AP = "Average Placement", hidden=false, color=null, team) {
         const entry = document.createElement("div");
         entry.className = "seasonal-lbs-entry";
 
@@ -458,13 +458,22 @@ const loadSeasonalTracks = async function() {
         }
         d1.style.display = "flex";
         d1.style.flexDirection = "row";
-        d1.style.padding = "10px";
+        d1.style.padding = "10px 0 10px 10px";
         d1.style.width = "100%";
 
         t2.style.padding = "10px";
         t2.style.width = "100%";
         t2.style.borderRadius = "5px";
         t2.textContent = player;
+
+        const t3 = document.createElement("p")
+        t3.textContent = Math.round(AP);
+        t3.style.margin = "10px";
+        t3.style.padding = "10px";
+        t3.style.borderRadius = "5px";
+        if (rank !== "Rank") {
+            t3.style.backgroundColor = "#212b58";
+        }
 
         entry.appendChild(t1);
         entry.appendChild(d1);
@@ -488,6 +497,7 @@ const loadSeasonalTracks = async function() {
         }
         
         d1.appendChild(t2);
+        d1.appendChild(t3);
 
         if (hidden) {
             entry.classList.add("hidden");
@@ -501,8 +511,8 @@ const loadSeasonalTracks = async function() {
     };
 
     //header
-    soloTitle = createEntry(leaderboardContents, "Rank", "Player", false,);
-    teamsTitle = createEntry(leaderboardContents, "Rank", "Team", true);
+    soloTitle = createEntry(leaderboardContents, "Rank", "Player", "Average Placement", false,);
+    teamsTitle = createEntry(leaderboardContents, "Rank", "Team", "Average Placement", true);
 
     entriesDivSolo = document.createElement("div");
     entriesDivSolo.className = "seasonal-lbs-entries-div";
@@ -519,14 +529,14 @@ const loadSeasonalTracks = async function() {
 
     let counter = 1;
     sortedData.forEach(e => {
-        createEntry(entriesDivSolo, counter, e.name, false, null, e.team)
+        createEntry(entriesDivSolo, counter, e.name,  e.averagePlacement, false, null, e.team,)
         counter += 1;
     })
 
     counter = 1;
     sortedTeams.forEach(e => {
         console.log(e)
-        createEntry(entriesDivTeam, counter, teams[e.teamName][0], false, teams[e.teamName][1])
+        createEntry(entriesDivTeam, counter, teams[e.teamName][0], e.averagePlacement, false, teams[e.teamName][1])
         counter += 1;
     })
 }
