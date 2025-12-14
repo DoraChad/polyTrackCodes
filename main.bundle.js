@@ -210,35 +210,48 @@ function calculateAveragePlacement(playersMap, totalTracks = 11, defaultPlacemen
 }
 
 function calculateTeamAverages(playersArray) {
-    const teamMap = new Map();
+    const playerMap = new Map();
+    playersArray.forEach(p => playerMap.set(p.userId, p));
 
-    playersArray.forEach(player => {
-        if (!player.team) return;
+    const teamResults = [];
 
-        if (!teamMap.has(player.team)) {
-            teamMap.set(player.team, {
-                teamName: player.team,
-                color: teams[player.team][0],
-                members: [],
-                averagePlacement: 0
-            });
-        }
+    for (const teamKey in teams) {
+        const teamData = teams[teamKey];
 
-        const team = teamMap.get(player.team);
-        team.members.push(player);
-    });
+        const teamName = teamKey;
+        const displayName = teamData[0];
+        const color = teamData[1];
+        const memberIds = teamData.slice(2);
 
-    teamMap.forEach(team => {
-        const sum = team.members.reduce((acc, p) => acc + p.averagePlacement, 0);
-        team.averagePlacement = sum / team.members.length;
-    });
+        let sum = 0;
 
-    const sortedTeams = Array.from(teamMap.values()).sort(
+        memberIds.forEach(userId => {
+            if (playerMap.has(userId)) {
+                sum += playerMap.get(userId).averagePlacement;
+            } else {
+                // Missing player → 1000
+                sum += 1000;
+            }
+        });
+
+        const avg =
+            memberIds.length > 0
+                ? sum / memberIds.length
+                : 1000;
+
+        teamResults.push({
+            teamKey,
+            teamName: displayName,
+            color,
+            averagePlacement: avg
+        });
+    }
+
+    return teamResults.sort(
         (a, b) => a.averagePlacement - b.averagePlacement
     );
-
-    return sortedTeams;
 }
+
 
 async function preloadSeasonalImages() {
     const urls = [];
@@ -566,7 +579,7 @@ const loadSeasonalTracks = async function() {
     counter = 1;
     sortedTeams.forEach(e => {
         console.log(e)
-        createEntry(entriesDivTeam, counter, teams[e.teamName][0], e.averagePlacement, false, teams[e.teamName][1])
+        createEntry(entriesDivTeam, counter, e.teamName, e.averagePlacement, false, e.color)
         counter += 1;
     })
 }
