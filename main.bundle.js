@@ -8,6 +8,7 @@ let entriesDivSolo;
 let entriesDivTeam;
 let soloTitle;
 let teamsTitle;
+let top3PerTrack;
 
 
 const switchTab = function(tab) {
@@ -117,6 +118,27 @@ const getSeasonalTrackCode = async function(trackNum) {
     return await res.text();
 
 }
+
+function getTop3Data(allData) {
+    const result = {};
+
+    allData.forEach((trackData, index) => {
+        const trackNum = index + 1;
+        const entries = trackData.entries || [];
+
+        result[trackNum] = entries.slice(0, 3).map((entry, i) => ({
+            position: i + 1,
+            userId: entry.userId,
+            name: entry.name,
+            frames: entry.frames
+        }));
+    });
+
+    return result;
+}
+
+
+
 async function getSeasonalLeaderboard() {
     const urls = [];
     for (let trackNum = 1; trackNum <= 11; trackNum++) {
@@ -127,6 +149,8 @@ async function getSeasonalLeaderboard() {
     const allData = await Promise.all(
         urls.map(url => fetch(url).then(r => r.json()))
     );
+
+    top3PerTrack = getTop3Data(allData);
 
     const players = new Map();
 
@@ -279,6 +303,39 @@ const loadSeasonalTracks = async function() {
         contentDiv.className = "seasonal-content";
         scroll.appendChild(contentDiv);
 
+        const rightDiv = document.createElement("div");
+        rightDiv.className = "right-content";
+        contentDiv.appendChild(rightDiv);
+
+        const viewButton = document.createElement("button");
+        viewButton.className = "view-leaderboard";
+        viewButton.addEventListener("click", async () => {
+            const code = await getSeasonalTrackCode(e);
+            const id = trackIds[e];
+            forceLoadTrackByCodeAndId(code, id);
+        })
+
+        const previewLbs = document.createElement("ul");
+        previewLbs.className = "top-three-list";
+        rightDiv.appendChild(previewLbs);
+
+        for (let i = 0; i < 3; i++) {
+            const text = top3PerTrack[e][i]?.name;
+            if (!text || text === "") continue;
+            const list = document.createElement("li");
+            if (i === 0) {
+                list.textContent = `🥇${text}`;
+            } else if (i === 1) {
+                list.textContent = `🥈${text}`;
+            } else {
+                list.textContent = `🥉${text}`;
+            }
+            previewLbs.appendChild(list);
+        }
+
+        rightDiv.appendChild(viewButton);
+        viewButton.appendChild(document.createTextNode("See leaderboard"))
+        
         const button = document.createElement("button");
         button.style.backgroundImage = `url("${blobs[`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/SeasonalUI/Wireframes_Map${e}_Blank.png`]}")`;
         button.addEventListener("click", async () => {
@@ -476,6 +533,35 @@ const loadSeasonalTracks = async function() {
 
 const rankedStyles = document.createElement("style");
 rankedStyles.textContent = `
+.top-three-list {
+    list-style-type: none;
+    text-align: right;
+    color: white;
+    font-size: 25px;
+    margin: 0;
+    white-space: nowrap;
+}
+.view-leaderboard {
+    border: solid white 5px;
+    height: 20%;
+    margin: 5%;
+    border-radius: 10px;
+    background: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    width: 70%;
+    overflow: hidden;
+}
+.right-content {
+    position: absolute;
+    height: 100%;
+    width: 25%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
 .seasonal-lbs-entries-div {
     height: 100%;
     display: flex;
@@ -1015,6 +1101,15 @@ for (let i in carWrapArray) {
 }
 
 const wrapImageCache = new Map(); // {wrapPath: image}
+
+function forceLoadTrackByCodeAndId(trackCode, trackId, quickLoad = false) {
+    const trackInfo = window.decodeTrackFromExportString(trackCode);
+    if (!trackInfo) {
+        console.error("Invalid track data");
+        return;
+    }
+    forceLoadTrack(trackInfo.trackMetadata, trackInfo.trackData, "custom", trackId, null, false, quickLoad)
+}
 
 function forceLoadMainTrackById(trackId, isRanked=false, quickLoad=false) {
     const trackInfo = mainTrackDataMap.get(trackId);
