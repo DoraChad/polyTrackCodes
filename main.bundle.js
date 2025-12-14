@@ -286,7 +286,11 @@ const loadSeasonalTracks = async function() {
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = "true";
+    if (seasonalMultiplayerEnabled) {
+        checkbox.checked = "true";
+    } else {
+        checkbox.checked = "false";
+    }
 
     const label = document.createElement("label");
     label.style.color = "white";
