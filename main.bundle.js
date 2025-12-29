@@ -11,6 +11,19 @@ let teamsTitle;
 let top3PerTrack;
 let seasonalMultiplayerEnabled = true;
 
+const saveVariableToFile = function(data, filename = "data.json") {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
 
 const switchTab = function(tab) {
     if (tab === "Teams") {
@@ -98,6 +111,17 @@ const trackTags = {
     11: ["Fullspeed", "Medium"],
 }
 
+async function loadVariableFromGitHub(url) {
+    const response = await fetch(`https://raw.githubusercontent.com/DoraChad/SeasonalPT/refs/heads/main/${url}`);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+    }
+
+    const text = await response.text();
+    return JSON.parse(text);
+}
+
 function getTeamFromUserId(userId) {
     for (const [teamCode, data] of Object.entries(teams)) {
         const memberIds = data.slice(2);
@@ -148,7 +172,7 @@ function logWinterTournamentStandings(sortedPlayers, sortedTeams, day = 1) {
 
     output += `\n## World Records:\n`;
 
-    Object.entries(top3PerTrack).forEach(([trackId, runs]) => {
+    /*Object.entries(top3PerTrack).forEach(([trackId, runs]) => {
         if (!runs || runs.length === 0) return;
 
         const wr = runs[0];
@@ -157,7 +181,7 @@ function logWinterTournamentStandings(sortedPlayers, sortedTeams, day = 1) {
         const trackName = seasonalTracks[trackId][0];
 
         output += `**${trackName}** - ${teamTag}${wr.name}\n`;
-    });
+    });*/
 
     console.log(output);
 }
@@ -209,7 +233,7 @@ function getTop3Data(allData) {
 async function getSeasonalLeaderboard() {
     const urls = [];
     for (let trackNum = 1; trackNum <= 11; trackNum++) {
-        const url = `https://polyproxy.orangy.cfd/leaderboard?version=0.5.2&trackId=${trackIds[trackNum]}&skip=0&amount=200&onlyVerified=false`;
+        const url = `https://polyproxy.orangy.cfd/leaderboard?version=0.5.2&trackId=${trackIds[trackNum]}&skip=0&amount=400&onlyVerified=false`;
         urls.push(url);
     }
 
@@ -217,7 +241,7 @@ async function getSeasonalLeaderboard() {
         urls.map(url => fetch(url).then(r => r.json()))
     );
 
-    top3PerTrack = getTop3Data(allData);
+    //top3PerTrack = getTop3Data(allData);
 
     const players = new Map();
 
@@ -358,7 +382,7 @@ const blobs = await preloadSeasonalImages();
 
 const loadSeasonalTracks = async function() {
 
-    playerData = await getSeasonalLeaderboard();
+    //playerData = await getSeasonalLeaderboard();
 
     const topDiv = document.createElement("div");
     seasonalContents.appendChild(topDiv)
@@ -427,7 +451,7 @@ const loadSeasonalTracks = async function() {
         previewLbs.className = "top-three-list";
         rightDiv.appendChild(previewLbs);
 
-        for (let i = 0; i < 3; i++) {
+        /*for (let i = 0; i < 3; i++) {
             const text = top3PerTrack[e][i]?.name;
             if (!text || text === "") continue;
             const list = document.createElement("li");
@@ -439,7 +463,7 @@ const loadSeasonalTracks = async function() {
                 list.textContent = `🥉${text}`;
             }
             previewLbs.appendChild(list);
-        }
+        }*/
 
         rightDiv.appendChild(viewButton);
         viewButton.appendChild(document.createTextNode("See leaderboard"))
@@ -636,10 +660,15 @@ const loadSeasonalTracks = async function() {
 
     leaderboardContents.appendChild(entriesDivTeam);
 
-    const sortedData = calculateAveragePlacement(playerData);
-    const sortedTeams = calculateTeamAverages(sortedData);
+    //const sortedData = calculateAveragePlacement(playerData);
+    //const sortedTeams = calculateTeamAverages(sortedData);
+    const sortedData = await loadVariableFromGitHub("data.json");
+    const sortedTeams = await loadVariableFromGitHub("teams.json");
+    
+   // saveVariableToFile(sortedData, "data.json");
+    //saveVariableToFile(sortedTeams, "teams.json");
 
-    //logWinterTournamentStandings(sortedData, sortedTeams, 2);
+    //logWinterTournamentStandings(sortedData, sortedTeams, 4);
     
     let counter = 1;
     sortedData.forEach(e => {
